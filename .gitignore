@@ -1,0 +1,20 @@
+dist/
+.dist-next/
+.runtime/
+node_modules/
+.DS_Store
+public-dist/
+.public-dist-next/
+.playwright-cli/
+output/playwright/
+# Private source materials and local operational evidence must never be committed.
+src/assets/portfolio-original.pdf
+src/assets/fonts/flyjung-sans-*.woff2
+src/assets/fonts/OFL.txt
+docs/content-sources.md
+docs/public-deployment.md
+docs/verification.md
+.env
+.env.*
+*.pem
+*.key
