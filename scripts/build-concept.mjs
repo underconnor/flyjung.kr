@@ -7,6 +7,8 @@ import { renderConcept as renderFlight } from '../experiments/flight/render.mjs'
 import { renderConcept as renderNight } from '../experiments/night/render.mjs';
 import { renderConcept as renderTerminal } from '../experiments/terminal/render.mjs';
 import { renderConcept as renderHangar } from '../experiments/hangar/render.mjs';
+import { renderConcept as renderHorizon } from '../experiments/horizon/render.mjs';
+import { renderConcept as renderDaybreak } from '../experiments/daybreak/render.mjs';
 import { projects } from '../site/data/projects.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -14,6 +16,8 @@ const output = path.join(root, 'concept-dist');
 const staging = path.join(root, '.concept-dist-next');
 const previous = path.join(root, '.runtime/build/concept-dist-previous');
 const concepts = [
+  { source: 'horizon', filename: 'horizon', pathname: 'horizon/index.html', render: renderHorizon },
+  { source: 'daybreak', filename: 'daybreak', pathname: 'daybreak/index.html', render: renderDaybreak },
   { source: 'night', filename: 'night', pathname: 'index.html', render: renderNight },
   { source: 'terminal', filename: 'terminal', pathname: 'terminal/index.html', render: renderTerminal },
   { source: 'hangar', filename: 'hangar', pathname: 'hangar/index.html', render: renderHangar },
@@ -89,10 +93,10 @@ async function buildConcept() {
     }
     await mkdir(path.join(staging, 'flight-assets'));
     await copyFile(await assertRegularSource('assets/flight-duck.png', path.join(root, 'experiments/flight')), path.join(staging, 'flight-assets/flight-duck.png'));
-    await mkdir(path.join(staging, 'aircraft'));
-    await copyFile(await assertRegularSource('model.mjs', path.join(root, 'experiments/aircraft')), path.join(staging, 'aircraft/model.mjs'));
-    await mkdir(path.join(staging, 'duck'));
-    await copyFile(await assertRegularSource('constellation.mjs', path.join(root, 'experiments/duck')), path.join(staging, 'duck/constellation.mjs'));
+    for (const [directory, filename] of [['aircraft','model.mjs'],['duck','constellation.mjs'],['aircraft-v2','model.mjs'],['sky-engine','viewer.mjs']]) {
+      await mkdir(path.join(staging, directory));
+      await copyFile(await assertRegularSource(filename, path.join(root, 'experiments', directory)), path.join(staging, directory, filename));
+    }
     await writeFile(path.join(staging, 'robots.txt'), 'User-agent: *\nDisallow: /\n');
     await writeFile(path.join(staging, '404.html'), '<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>별도 시안</title><h1>이 시안에는 없는 페이지입니다.</h1><a href="/">시안 처음으로</a></html>');
     const current = await lstat(output).catch(error => {
@@ -106,7 +110,7 @@ async function buildConcept() {
     try { await rename(staging, output); }
     catch (error) { if (current) await rename(previous, output); throw error; }
     await rm(previous, {recursive:true, force:true});
-    console.log(JSON.stringify({output,assets:assets.length + 1,sharedModules:2,pages:concepts.length + 1,routes:concepts.map(concept => '/' + concept.pathname.replace('index.html','')),publicDeployment:false},null,2));
+    console.log(JSON.stringify({output,assets:assets.length + 1,sharedModules:4,pages:concepts.length + 1,routes:concepts.map(concept => '/' + concept.pathname.replace('index.html','')),publicDeployment:false},null,2));
   } catch(error) {
     await rm(staging, {recursive:true,force:true});
     throw error;

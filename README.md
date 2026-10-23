@@ -26,7 +26,9 @@ http://127.0.0.1:4320/ 에서 제목·분류·본문을 입력하고 저장·미
 npm run concept
 ```
 
-http://127.0.0.1:4321/ 에서 별자리 안을 비교합니다. 두 안 모두 깊은 인디고 블루와 **Somewhere between code and stars.**를 사용합니다.
+새 절충안은 [밤하늘과 밝은 본문](http://127.0.0.1:4321/horizon/)과 [밝은 지면과 밤하늘 장면](http://127.0.0.1:4321/daybreak/)입니다. 이름을 주 제목으로 두고 작은 슬로건, 실제 이력에 연결된 별, 새 787 모델과 입력에 반응하는 모션을 비교합니다. 두 안 모두 CV 아래에 고정 프로젝트 최대 두 개와 검색 목록을 배치합니다.
+
+이전에 만든 두 안은 그대로 유지합니다. http://127.0.0.1:4321/ 의 별자리 안과 `/terminal/`의 ASCII 안은 깊은 인디고 블루와 **Somewhere between code and stars.**를 사용합니다.
 
 | 경로 | 표현과 조작 |
 | --- | --- |
@@ -74,6 +76,8 @@ macOS에서는 `scripts/start-site.command`와 `scripts/start-public.command`를
 | `scripts/` | 빌드·미리보기·테스트·ZIP 패키징 |
 | `editor/` | 이 컴퓨터에서만 실행하는 글쓰기 화면 |
 | `experiments/night/`, `experiments/terminal/`, `experiments/hangar/` | 밤하늘·터미널·3D 비교 시안 |
+| `experiments/horizon/`, `experiments/daybreak/` | 이름 중심의 밝고 어두운 면을 조합한 새 절충안 |
+| `experiments/aircraft-v2/`, `experiments/sky-engine/` | 새 787 지오메트리, 문자·입체 공유 렌더러와 입력 모션 |
 | `experiments/catalog.mjs`, `experiments/aircraft/` | 공통 슬로건·고정 프로젝트, 공유 787 지오메트리 |
 | `experiments/studio/`, `experiments/flight/` | 이전 인디고 타이포 안과 그림 시안 보관 |
 | `experiments/bold/` | 이전 파랑 시안 보관 |
