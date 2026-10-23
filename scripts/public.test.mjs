@@ -80,7 +80,7 @@ test('the published stylesheet needs no chained CSS requests and uses local font
 });
 
 test('the public bundle excludes the writing workspace and comparison concept', async () => {
-  assert.doesNotMatch(files.join('\n'), /(?:^|\/)(?:editor|content|experiments|concept-dist|drafts)(?:\/|$)|(?:^|\/)concept\.(?:css|js)$/m);
+  assert.doesNotMatch(files.join('\n'), /(?:^|\/)(?:editor|content|experiments|concept-dist|drafts|flight-assets|flight|archive)(?:\/|$)|(?:^|\/)(?:concept|studio|flight)\.(?:css|js)$/m);
   for (const name of files.filter(file => /\.(?:html|js|css)$/.test(file))) {
     const text = await readFile(path.join(root, name), 'utf8');
     assert.doesNotMatch(text, /data-editor|slogan-select|\/api\/drafts|localhost:4320|127\.0\.0\.1:432[01]/, name);
