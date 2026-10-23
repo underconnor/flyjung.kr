@@ -1,3 +1,7 @@
+import { lstat, readFile, readdir } from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 /**
  * Only author-approved articles belong here. The Figma article names and dates
  * are layout examples, not published writing.
@@ -6,8 +10,6 @@
  *            paragraphs: string[], status: 'draft' | 'published' }
  * Category: any ID in blogCategories except 'all'.
  */
-export const blogPosts = [];
-
 export const blogCategories = [
   { id: 'all', label: '전체' },
   { id: 'development', label: '개발' },
@@ -59,4 +61,27 @@ export function getPublishedPosts(posts = blogPosts) {
   return published.sort((a, b) => b.date.localeCompare(a.date));
 }
 
+/** Only explicitly registered public JSON is read here. Local drafts are separate. */
+export async function loadBlogPosts(directory = fileURLToPath(new URL('../../content/posts/', import.meta.url))) {
+  const directoryInfo = await lstat(directory).catch(error => {
+    if (error.code === 'ENOENT') return null;
+    throw error;
+  });
+  if (!directoryInfo) return [];
+  if (!directoryInfo.isDirectory() || directoryInfo.isSymbolicLink()) throw new Error('Public posts directory must be a real directory');
+  const posts = [];
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    if (entry.name === '.gitkeep') continue;
+    if (!entry.isFile() || entry.isSymbolicLink() || !/^[a-z0-9]+(?:-[a-z0-9]+)*\.json$/.test(entry.name)) {
+      throw new Error(`Unexpected public post file: ${entry.name}`);
+    }
+    const post = JSON.parse(await readFile(path.join(directory, entry.name), 'utf8'));
+    validatePublishedPost(post);
+    if (`${post.slug}.json` !== entry.name) throw new Error(`Public post filename and slug differ: ${entry.name}`);
+    posts.push(post);
+  }
+  return getPublishedPosts(posts);
+}
+
+export const blogPosts = await loadBlogPosts();
 export const publishedPosts = getPublishedPosts();

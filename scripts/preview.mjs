@@ -101,17 +101,20 @@ export async function createPreviewServer({ rootDirectory }) {
 async function run() {
   const args = process.argv.slice(2);
   let publicBuild = false;
+  let conceptBuild = false;
   let selectedPort;
   for (let index = 0; index < args.length; index++) {
     if (args[index] === '--public') publicBuild = true;
+    else if (args[index] === '--concept') conceptBuild = true;
     else if (args[index] === '--port') selectedPort = Number(args[++index]);
     else throw new Error(`Unknown preview option: ${args[index]}`);
   }
-  const port = selectedPort ?? (publicBuild ? 4319 : 4318);
+  if (publicBuild && conceptBuild) throw new Error('Choose either the public build or the concept preview');
+  const port = selectedPort ?? (conceptBuild ? 4321 : publicBuild ? 4319 : 4318);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Port must be between 1 and 65535');
-  const rootDirectory = path.join(projectRoot, publicBuild ? 'public-dist' : 'dist');
+  const rootDirectory = path.join(projectRoot, conceptBuild ? 'concept-dist' : publicBuild ? 'public-dist' : 'dist');
   const index = await lstat(path.join(rootDirectory, 'index.html')).catch(() => null);
-  if (!index?.isFile()) throw new Error(`먼저 npm run ${publicBuild ? 'check:public' : 'check'}로 사이트를 빌드해 주세요.`);
+  if (!index?.isFile()) throw new Error(`먼저 npm run ${conceptBuild ? 'build:concept' : publicBuild ? 'check:public' : 'check'}로 사이트를 빌드해 주세요.`);
   const server = await createPreviewServer({ rootDirectory });
   await new Promise((resolve, reject) => {
     server.once('error', reject);

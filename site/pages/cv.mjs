@@ -1,4 +1,4 @@
-import { awards, cvIdentity, cvProjects, education, experiences } from '../data/cv.mjs';
+import { activities, awards, careers, cvIdentity, cvProjects, education } from '../data/cv.mjs';
 import { escapeHTML } from '../html.mjs';
 
 function renderExperienceRow(entry) {
@@ -21,9 +21,10 @@ export function renderCV() {
       <h1>CV</h1>
       <p>${escapeHTML(cvIdentity)}</p>
     </div>
-    <section class="cv-section" aria-labelledby="cv-experience-title">
-      <h2 id="cv-experience-title">경력과 활동</h2>
-      <ul class="cv-list">${experiences.map(renderExperienceRow).join('')}</ul>
+    ${careers.length ? `<section class="cv-section" aria-labelledby="cv-career-title"><h2 id="cv-career-title">경력</h2><ul class="cv-list">${careers.map(renderExperienceRow).join('')}</ul></section>` : ''}
+    <section class="cv-section" aria-labelledby="cv-activities-title">
+      <h2 id="cv-activities-title">활동</h2>
+      <ul class="cv-list">${activities.map(renderExperienceRow).join('')}</ul>
     </section>
     <section class="cv-section" aria-labelledby="cv-projects-title">
       <h2 id="cv-projects-title">프로젝트</h2>

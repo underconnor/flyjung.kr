@@ -1,8 +1,10 @@
-// Approved public CV content from Figma v1 UI / CV.
-// This is shared data for the CV and the Home experience list.
+// Public CV content. Employment, community activities, and awards stay separate.
 export const cvIdentity = 'flyjung · 숭실대학교 1학년';
 
-export const experiences = [
+// Add only confirmed employment here; an empty section is not displayed.
+export const careers = [];
+
+export const activities = [
   {
     organization: '숭실대학교 IT지원위원회',
     role: 'PM',
@@ -19,12 +21,6 @@ export const experiences = [
     period: '2023 — 2024',
   },
 ];
-
-export const cvExperiences = experiences.map(({ organization, role, period }) => ({
-  title: organization,
-  role,
-  period,
-}));
 
 export const cvProjects = [
   {

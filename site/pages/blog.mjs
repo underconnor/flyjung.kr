@@ -56,10 +56,10 @@ export function renderBlog({ posts = publishedPosts } = {}) {
   </div>`;
 }
 
-export function renderBlogPost(post) {
+export function renderBlogPost(post, { preview = false } = {}) {
   validatePublishedPost(post);
   return `<article class="blog-article">
-    <a class="blog-back" href="/blog/">← 글 목록</a>
+    ${preview ? '' : '<a class="blog-back" href="/blog/">← 글 목록</a>'}
     <header class="blog-article-header">
       <p class="blog-post-category">${escapeHTML(categoryLabel(post.category))}</p>
       <h1>${escapeHTML(post.title)}</h1>

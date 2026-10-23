@@ -12,7 +12,11 @@
     "check:public": "npm run build:public && npm run test:public",
     "package:public": "npm run check:public && python3 scripts/package-public.py",
     "preview": "node scripts/preview.mjs",
-    "preview:public": "node scripts/preview.mjs --public"
+    "preview:public": "node scripts/preview.mjs --public",
+    "write": "node scripts/editor.mjs",
+    "build:concept": "node scripts/build-concept.mjs",
+    "preview:concept": "node scripts/preview.mjs --concept",
+    "concept": "npm run build:concept && npm run preview:concept"
   },
   "engines": {
     "node": ">=20"

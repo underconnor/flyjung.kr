@@ -5,6 +5,8 @@ node_modules/
 .DS_Store
 public-dist/
 .public-dist-next/
+concept-dist/
+.concept-dist-next/
 .playwright-cli/
 output/playwright/
 # Private source materials and local operational evidence must never be committed.
