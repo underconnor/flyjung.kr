@@ -1,7 +1,10 @@
 import { escapeHTML, routes } from './html.mjs';
 function navigation(page, footer = false) {
   const links = footer ? [{href:'/',label:'Home',key:'home'},...routes.map(route=>({...route,label:route.key==='projects'?'Work':route.label}))] : routes;
-  return links.map(route=>`<a href="${route.href}"${page===route.key?' aria-current="page"':''}>${route.label}</a>`).join('');
+  return links.map(route => {
+    const current = page === route.key ? 'page' : page === 'article' && route.key === 'blog' ? 'location' : '';
+    return `<a href="${route.href}"${current ? ` aria-current="${current}"` : ''}>${route.label}</a>`;
+  }).join('');
 }
 export function layout({title,description,body,page,publicBuild=false,pathname='/',noindex=false}) {
   const isHome=page==='home';

@@ -121,7 +121,7 @@ main:focus {
   font-size: 16px;
   line-height: 26px;
 }
-.site-nav a[aria-current="page"] {
+.site-nav a[aria-current] {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
