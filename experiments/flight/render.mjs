@@ -41,7 +41,7 @@ export function renderConcept() {
 <body>
   <a class="skip-link" href="#main">본문으로 건너뛰기</a>
   <aside class="comparison-bar" aria-label="디자인 시안 비교">
-    <div class="comparison-inner page-width"><p>디자인 비교</p><nav aria-label="비교할 시안"><a href="/">인디고 타이포</a><a href="/flight/" aria-current="page">비행기와 오리</a><a href="/archive/">이전 파랑안</a><a href="http://127.0.0.1:4319/">기존 사이트</a></nav></div>
+    <div class="comparison-inner page-width"><p>이전 시안 보관</p><nav aria-label="비교할 시안"><a href="/">밤하늘</a><a href="/terminal/">터미널</a><a href="/hangar/">787 3D</a><a href="/indigo/">이전 인디고</a><a href="http://127.0.0.1:4319/">기존 사이트</a></nav></div>
   </aside>
   <header class="site-header page-width">
     <a class="wordmark" href="#top" aria-label="flyjung 처음으로">flyjung<span class="wordmark-plane">${planeIcon}</span></a>

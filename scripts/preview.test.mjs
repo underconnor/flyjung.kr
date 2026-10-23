@@ -23,6 +23,7 @@ before(async () => {
     writeFile(path.join(output, '404.html'), '<h1>Custom not found</h1>'),
     writeFile(path.join(output, 'styles.css'), 'body { color: black; }'),
     writeFile(path.join(output, 'app.js'), 'export const ready = true;'),
+    writeFile(path.join(output, 'model.mjs'), 'export const vertices = [0, 0, 0];'),
     writeFile(path.join(output, 'assets/font.woff2'), Buffer.from([0, 1, 2, 255])),
     writeFile(path.join(output, '.hidden'), 'PRIVATE_HIDDEN'),
     writeFile(path.join(output, '_headers'), 'PRIVATE_CONFIGURATION'),
@@ -73,7 +74,7 @@ test('preview serves page routes and redirects directories with the query preser
 });
 
 test('preview serves scripts, styles, and binary fonts with correct types and HEAD semantics', async () => {
-  for (const [url, expectedType] of [['/styles.css', 'text/css'], ['/app.js', 'text/javascript'], ['/assets/font.woff2', 'font/woff2']]) {
+  for (const [url, expectedType] of [['/styles.css', 'text/css'], ['/app.js', 'text/javascript'], ['/model.mjs', 'text/javascript'], ['/assets/font.woff2', 'font/woff2']]) {
     const response = await get(url);
     assert.equal(response.status, 200);
     assert.ok(response.headers['content-type'].startsWith(expectedType), url);

@@ -26,7 +26,16 @@ http://127.0.0.1:4320/ 에서 제목·분류·본문을 입력하고 저장·미
 npm run concept
 ```
 
-http://127.0.0.1:4321/ 에서 이름 중심의 인디고 안을, http://127.0.0.1:4321/flight/ 에서 비행기와 오리를 넣은 개성 안을 비교합니다. 이전 파랑 시안은 `/archive/`에 보관합니다. 새 안은 큰 영어 슬로건 대신 이름과 실제 작업을 앞에 둡니다.
+http://127.0.0.1:4321/ 에서 별자리 안을 비교합니다. 두 안 모두 깊은 인디고 블루와 **Somewhere between code and stars.**를 사용합니다.
+
+| 경로 | 표현과 조작 |
+| --- | --- |
+| `/` | Canvas 별자리, 섹션으로 이동하는 별, 찾아볼 수 있는 오리자리 |
+| `/terminal/` | 프레임 없는 ASCII 787, 별과 비행 경로, 접을 수 있는 명령 입력 |
+
+CV를 먼저 보여주고, 고정 프로젝트 최대 두 개와 전체 프로젝트 목록을 이어 배치합니다. 실제 콘텐츠는 `site/data/`를 공유하며, 고정할 프로젝트는 `experiments/catalog.mjs`의 `pinnedProjectIds`에서 지정합니다. 프로젝트가 늘어나도 큰 카드가 계속 추가되지 않습니다. 787은 공식 형상을 참고해 코드로 만든 스타일 모델입니다.
+
+독립 3D 모델 안은 `/hangar/`, 이전 밝은 인디고 안은 `/indigo/`, 그림을 사용한 안은 `/flight/`, 파랑 안은 `/archive/`에 보관합니다.
 
 `experiments/`에서 각각 관리하며 `concept-dist/`에만 생성합니다. 공개 빌드와 배포 ZIP에는 포함하지 않습니다. 상단 비교 메뉴로 이동하고 기존안과 비교한 뒤 적용 여부를 정합니다.
 
@@ -64,7 +73,9 @@ macOS에서는 `scripts/start-site.command`와 `scripts/start-public.command`를
 | `src/assets/` | 공개 이미지·자체 호스팅 웹폰트·라이선스 |
 | `scripts/` | 빌드·미리보기·테스트·ZIP 패키징 |
 | `editor/` | 이 컴퓨터에서만 실행하는 글쓰기 화면 |
-| `experiments/studio/`, `experiments/flight/` | 인디고 타이포 안과 비행기·오리 안 |
+| `experiments/night/`, `experiments/terminal/`, `experiments/hangar/` | 밤하늘·터미널·3D 비교 시안 |
+| `experiments/catalog.mjs`, `experiments/aircraft/` | 공통 슬로건·고정 프로젝트, 공유 787 지오메트리 |
+| `experiments/studio/`, `experiments/flight/` | 이전 인디고 타이포 안과 그림 시안 보관 |
 | `experiments/bold/` | 이전 파랑 시안 보관 |
 | `dist/`, `public-dist/` | 생성물. 직접 수정하거나 커밋하지 않음 |
 

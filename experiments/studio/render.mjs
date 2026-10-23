@@ -42,7 +42,7 @@ export function renderConcept() {
 <aside class="comparison" aria-label="시안 비교">
   <div class="comparison-inner page-width">
     <p>시안 비교</p>
-    <nav aria-label="디자인 시안"><a href="/" aria-current="page">인디고 타이포</a><a href="/flight/">비행기와 오리</a><a href="/archive/">이전 파랑안</a><a href="http://127.0.0.1:4319/">기존 안</a></nav>
+    <nav aria-label="디자인 시안"><a href="/">밤하늘</a><a href="/terminal/">터미널</a><a href="/hangar/">787 3D</a><a href="/indigo/" aria-current="page">이전 인디고</a><a href="http://127.0.0.1:4319/">기존 안</a></nav>
   </div>
 </aside>
 <header class="site-header page-width">
