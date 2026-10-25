@@ -7,8 +7,8 @@ export function createAircraft() {
   const positions = [], normals = [], colors = [], wireSegments = [], parts = [];
   const color = hex => [0, 2, 4].map(offset => parseInt(hex.slice(offset, offset + 2), 16) / 255);
   const paint = {
-    body: color('e8ebf5'), belly: color('b9c0d7'), wing: color('d8dfee'),
-    lowerWing: color('a8b2cc'), fin: color('969bc7'), edge: color('c8cee2'),
+    body: color('f0f3fb'), belly: color('b9c0d7'), wing: color('cbd7eb'),
+    lowerWing: color('9caac5'), fin: color('adbada'), edge: color('d8e0ef'),
     window: color('353d60'), intake: color('222b46'), fan: color('7887a7'),
     spinner: color('a4b0c7'), cockpit: color('273553'),
   };
@@ -56,7 +56,7 @@ export function createAircraft() {
   function lathe(rings, segments, origin, tint, {inside=false, chevrons=false, wireRings=[],yScale=1}={}) {
     const points=rings.map(([x,radius,centerY=0],i)=>Array.from({length:segments},(_,j)=>{
       const angle=j/segments*Math.PI*2;
-      const notch=chevrons && i===0 ? (j%2===0 ? -.045 : .020) : 0;
+      const notch=chevrons && i===0 ? (j%2===0 ? -.072 : .027) : 0;
       return add([x+notch,centerY+radius*Math.sin(angle)*yScale,radius*Math.cos(angle)],origin);
     }));
     const ns=rings.map((ring,i)=>{
@@ -128,8 +128,9 @@ export function createAircraft() {
     [.40,2.02,-.72,-.195,.155],[.80,1.76,-.63,-.177,.135],
     [1.55,1.25,-.59,-.126,.105],[2.12,.84,-.57,-.077,.085],
     [3.16,.11,-.96,.028,.063],[4.22,-.64,-1.43,.154,.044],
-    [5.05,-1.26,-1.83,.272,.029],[5.58,-1.74,-2.12,.363,.016],
-    [5.83,-2.08,-2.29,.407,.009],[5.93,-2.33,-2.35,.425,.003],
+    [5.05,-1.26,-1.83,.272,.029],[5.38,-1.52,-1.99,.334,.023],
+    [5.58,-1.74,-2.12,.363,.016],[5.83,-2.08,-2.29,.407,.009],
+    [5.93,-2.33,-2.35,.425,.003],
   ];
   for(const side of [-1,1])part(`wing-${side<0?'port':'starboard'}`,()=>wing(mainWing,side));
   const tailWing=[
@@ -164,13 +165,13 @@ export function createAircraft() {
     return ring;
   }
   for(const side of [-1,1])part(`engine-${side<0?'port':'starboard'}`,()=>{
-    const y=-.71,z=side*1.956,origin=[0,y,z];
+    const y=-.77,z=side*1.956,origin=[0,y,z];
     plate([[.65,-.13],[1.12,-.06],[1.70,-.37],[1.04,-.48]],.055,z,paint.edge);
-    const rings=[[1.03,.260,0],[1.15,.320,0],[1.53,.358,0],[1.87,.354,0],[2.06,.324,0],[2.10,.306,0]];
+    const rings=[[1.03,.260,0],[1.15,.326,0],[1.53,.366,0],[1.87,.362,0],[2.06,.330,0],[2.10,.309,0]];
     const outer=lathe(rings,40,origin,paint.body,{chevrons:true,wireRings:[0,5]});
-    const inner=lathe([[1.86,.267,0],[2.06,.275,0],[2.10,.277,0]],40,origin,paint.intake,{inside:true});
+    const inner=lathe([[1.86,.270,0],[2.06,.278,0],[2.10,.280,0]],40,origin,paint.intake,{inside:true});
     for(let j=0;j<40;j++){const k=(j+1)%40;quad(outer.at(-1)[j],inner.at(-1)[j],inner.at(-1)[k],outer.at(-1)[k],paint.edge);}
-    disk(1.861,.266,y,z,paint.intake);
+    disk(1.861,.269,y,z,paint.intake);
     // Visible fan blades are geometry, not a painted texture.
     for(let j=0;j<18;j++) {
       const a=j/18*Math.PI*2,b=a+.14,c=a+.36;
@@ -204,7 +205,7 @@ export function createAircraft() {
   part('cockpit-glazing',()=>{
     for(const side of [-1,1])for(const [x0,x1,low,high] of [[4.98,5.23,.24,.86],[5.27,5.70,.31,1.12]]) {
       const angle=v=>side>0?v:Math.PI-v;
-      const surface=(u,v)=>bodySurface(mix(x0,x1,u),angle(mix(low+.08*u,high-.08*(1-u),v)),.012);
+      const surface=(u,v)=>bodySurface(mix(x0,x1,u),angle(mix(low+.08*u,high-.07*u,v)),.012);
       // Subdivide onto the curved skin so the glass does not sink into the nose.
       for(let i=0;i<4;i++)for(let j=0;j<4;j++) {
         const a=surface(i/4,j/4),b=surface((i+1)/4,j/4),c=surface((i+1)/4,(j+1)/4),d=surface(i/4,(j+1)/4);

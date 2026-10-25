@@ -1,0 +1,46 @@
+import { escapeHTML as e } from '../../site/html.mjs';
+import { projects, pinnedProjects, signature } from '../catalog.mjs';
+import { careers, activities, awards, education, cvIdentity, cvProjects } from '../../site/data/cv.mjs';
+import { renderConceptNavigation } from '../navigation.mjs';
+import { commitRecords } from '../commit-records.mjs';
+
+const publicSite = 'http://127.0.0.1:4319';
+const projectTitle = project => project.id === 'momu' ? '모무' : project.title;
+const skyDots = Array.from({length:78}, (_, index) => {
+  const x = (index * 617 + 31) % 1200;
+  const y = (index * 359 + 73) % 1570;
+  const radius = index % 11 === 0 ? 1.5 : index % 3 === 0 ? 1 : .65;
+  return `<circle cx="${x}" cy="${y}" r="${radius}"/>`;
+}).join('');
+const cvRows = (rows, kind) => `<ul class="cv-rows">${rows.map((row,index)=>`<li id="${kind}-${index}" tabindex="-1"><div><h3>${e(row.organization)}</h3><p>${e(row.role || '')}</p></div><span>${e(row.period)}</span></li>`).join('')}</ul>`;
+const projectDetail = project => `<details class="project-row" id="detail-${e(project.id)}" data-project data-search="${e(`${project.title} ${project.role} ${project.summary}`)}"><summary><span class="row-name">${e(projectTitle(project))}</span><span class="row-description">${e(project.summary)}</span><span class="row-role">${e(project.role)}</span><span class="row-toggle" aria-hidden="true">+</span></summary><div class="project-detail">${project.details.map(detail=>`<div><h4>${e(detail.label)}</h4>${detail.paragraphs.map(paragraph=>`<p>${e(paragraph)}</p>`).join('')}</div>`).join('')}<a href="${publicSite}/projects/#${e(project.id)}">프로젝트 화면 보기</a></div></details>`;
+const compactPeriod = period => period.replace(/\s*—\s*/g, '–');
+const projectChart = pinnedProjects.slice(0,2).map((project,index) => {
+  const record = cvProjects[index];
+  const title = projectTitle(project);
+  const accessibleName = `${title}: ${project.description} ${record.role}, ${record.period}. 아래 프로젝트 상세로 이동`;
+  return `<a class="chart-record project-record-${index}" href="#detail-${e(project.id)}" data-open-project="detail-${e(project.id)}" aria-label="${e(accessibleName)}"><span class="chart-point" aria-hidden="true"></span><span class="chart-leader" aria-hidden="true"></span><span class="chart-copy"><strong>${e(title)}</strong><span class="chart-detail" aria-hidden="true">${e(compactPeriod(record.period))} · ${e(record.role)}</span></span></a>`;
+}).join('');
+const activityIndexes = [2,1,0].filter(index => activities[index]);
+const activityChart = activityIndexes.map((index,position) => {
+  const activity = activities[index];
+  const title = index === 2 ? 'PRON' : index === 0 ? 'IT지원위원회' : activity.organization;
+  const accessibleName = `${activity.organization}: ${activity.role}, ${activity.period}. 아래 CV 활동으로 이동`;
+  return `<a class="chart-record activity-record-${position}" href="#activity-${index}" data-activity-link aria-label="${e(accessibleName)}"><span class="chart-point" aria-hidden="true"></span><span class="chart-leader" aria-hidden="true"></span><span class="chart-copy"><strong>${e(title)}</strong><span class="chart-detail" aria-hidden="true">${e(compactPeriod(activity.period))} · ${e(activity.role)}</span></span></a>`;
+}).join('');
+const meteorCommits = [commitRecords[5], commitRecords[1], commitRecords[0]];
+const meteors = meteorCommits.map((commit, index) => `<a class="meteor meteor-${index}" href="${e(commit.url)}" target="_blank" rel="noopener noreferrer"><span class="meteor-streak" aria-hidden="true"></span><span class="meteor-copy"><strong>${e(commit.subject)}</strong><small>${e(commit.date)} · ${e(commit.shortSha)}</small></span></a>`).join('');
+
+export function renderConcept() {
+  return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#090f35"><meta name="description" content="정지원의 프로젝트와 활동을 별자리로 따라가는 밤하늘과 787."><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'"><title>정지원 · 별의 항로</title><link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/sky-trail.css"><script type="module" src="/sky-trail.js"></script></head><body>
+<a class="skip-link" href="#main">본문으로 건너뛰기</a>${renderConceptNavigation('sky-trail')}
+<div class="sky-page" id="top"><header class="site-header content-width"><a class="wordmark" href="#top">flyjung<span aria-hidden="true">.</span></a><nav aria-label="주 메뉴"><a href="#cv">CV</a><a href="#projects">Projects</a><a href="${publicSite}/blog/">Blog</a></nav></header>
+<main id="main" tabindex="-1"><div class="sky-journey"><svg class="sky-dots" viewBox="0 0 1200 1570" preserveAspectRatio="xMidYMin slice" aria-hidden="true">${skyDots}</svg>
+<section class="flight-passage content-width" aria-label="밤하늘을 지나는 Boeing 787"><div class="sky-intro" aria-labelledby="identity-title"><div class="identity"><p class="hello">안녕하세요,</p><h1 id="identity-title">정지원<span lang="en">Jiwon Jung</span></h1><p class="signature" lang="en">${e(signature)}</p><p class="intro-copy">숭실대학교에서 공부하며<br>서비스를 만들고 기획합니다.</p><a class="read-cv" href="#cv">이력부터 읽기 <span aria-hidden="true">↓</span></a></div></div><div class="aircraft-track" role="img" aria-label="Boeing 787을 참고한 문자 비행기"><div class="aircraft-stage" id="trail-aircraft" aria-hidden="true"><p class="loading">787</p></div></div></section>
+<section class="radar-stage" aria-labelledby="radar-title"><svg class="chart-dust" viewBox="0 0 1200 1570" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${skyDots}</svg><div class="content-width radar-content"><div class="radar-heading"><h2 id="radar-title">기록의 별자리</h2></div><div class="radar-field" aria-label="실제 프로젝트 두 개와 활동 세 개를 각 범주 안에서 시작 순서로 이은 별자리"><svg class="constellation-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="category-line project-line"/><path class="category-line activity-line"/></svg>${projectChart}${activityChart}</div></div></section>
+<section class="meteor-stage" aria-labelledby="meteor-title"><div class="content-width meteor-content"><div class="meteor-heading"><h2 id="meteor-title">지나온 기록</h2></div><div class="meteor-field">${meteors}</div></div></section></div>
+<div class="ground"><section class="cv-section content-width" id="cv" aria-labelledby="cv-title"><div class="section-title"><h2 id="cv-title">CV</h2><p>${e(cvIdentity)}</p><a href="${publicSite}/cv/">전체 이력 보기</a></div><div class="cv-content">${careers.length?`<div class="cv-group"><h3 class="group-title">경력</h3>${cvRows(careers,'career')}</div>`:''}<div class="cv-group"><h3 class="group-title">활동</h3>${cvRows(activities,'activity')}</div><div class="cv-small"><div><h3 class="group-title">학력</h3>${education.map(entry=>`<p>${e(entry.organization)}<span>${e(entry.period)}</span></p>`).join('')}</div><div><h3 class="group-title">수상</h3>${awards.map(award=>`<p>${e(award.title)}<span>${e(award.distinction)}</span></p>`).join('')}</div></div></div></section>
+<section class="featured-section content-width" id="projects" aria-labelledby="projects-title"><div class="section-top"><h2 id="projects-title">먼저 볼 프로젝트</h2><a href="#all-projects">전체 목록</a></div><div class="featured-projects">${pinnedProjects.slice(0,2).map(project=>`<article class="featured-project"><div><p class="project-role">${e(project.role)}</p><h3>${e(projectTitle(project))}</h3><p class="project-summary">${e(project.summary)}</p><a href="#detail-${e(project.id)}" data-open-project="detail-${e(project.id)}">만든 과정 보기</a></div><figure><img src="${e(project.images[0].src)}" width="${project.images[0].width}" height="${project.images[0].height}" alt="${e(project.images[0].alt)}" loading="lazy" decoding="async"></figure></article>`).join('')}</div></section>
+<section class="catalog-section content-width" id="all-projects" aria-labelledby="catalog-title"><div class="section-top"><h2 id="catalog-title">전체 프로젝트</h2><form class="project-search" role="search" hidden><label for="project-search">프로젝트 찾기</label><input id="project-search" type="search" name="q" placeholder="이름, 역할, 내용" maxlength="100" autocomplete="off"><button type="reset">초기화</button></form></div><p id="project-count" role="status">${projects.length}개의 프로젝트</p>${projects.map(projectDetail).join('')}<p id="project-empty" hidden>찾는 프로젝트가 없습니다. 다른 검색어로 찾아보세요.</p></section>
+<footer class="site-footer content-width"><a class="wordmark" href="#top">flyjung<span aria-hidden="true">.</span></a><p>정지원 · Jiwon Jung</p><a href="${publicSite}/blog/">블로그 읽기</a></footer></div></main></div></body></html>`;
+}

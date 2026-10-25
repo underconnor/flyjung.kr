@@ -35,14 +35,17 @@ npm run concept
 | `/horizon/` | 프로젝트·활동이 문자 별로 떠 있는 연결 그래프와 밝은 본문 |
 | `/daybreak/` | 사각 패널 없이 페이지 전체로 펼쳐지는 밝은 새벽 하늘 |
 | `/atmosphere/` | 심야 인디고에서 대기와 밝은 본문으로 이어지는 그라데이션 |
+| `/constellation/` | 밤하늘의 스크롤 787 뒤에 별도 구간으로 모인 실제 기록의 점 지도 |
+| `/sky-trail/` | 787 하강, 검은 하늘의 별자리 군집, 공개 커밋 유성 뒤 밝은 본문 |
 | `/descent/` | 787과 실제 저장소 커밋 별을 지나 스크롤로 내려오는 장면 |
 | `/orbit/` | 짧은 하늘 도입부와 밝은 본문을 조합한 차분한 절충안 |
 | `/flight-lab/` | 드래그·스크롤·포인터, 축·방식·감도·관성 비교 실험실 |
+| `/constellation-lab/` | 프로젝트·활동 범위와 선택형 레이더 표현을 비교하는 별자리 실험실 |
 | `/hangar/`, `/indigo/`, `/flight/`, `/archive/` | 787 3D·Indigo·Flight·Cobalt 시안 |
 
 이름을 주 제목으로 두고 **Somewhere between code and stars.**는 보조 문장으로 사용합니다. CV 아래에 고정 프로젝트 최대 두 개와 전체 검색 목록을 두며, Blog는 메인 메뉴에서 별도 페이지로 이동합니다. 실제 콘텐츠는 `site/data/`를 공유하고, 고정 프로젝트는 `experiments/catalog.mjs`의 `pinnedProjectIds`에서 지정합니다. 커밋 별은 `experiments/commit-records.mjs`에 검토한 실제 저장소 기록만 담습니다.
 
-787은 공식 형상을 참고해 코드로 만든 스타일 모델입니다. `sky-engine`은 문자·입체 표현과 입력을 공유합니다. 실험실 설정은 URL로 복원하며 네이티브 페이지 스크롤을 유지합니다.
+787은 공식 형상을 참고해 코드로 만든 스타일 모델입니다. `sky-engine`은 문자·입체 표현과 입력을 공유합니다. 비행 실험실 설정은 URL로 복원하며 네이티브 페이지 스크롤을 유지합니다. 새 별자리 안에는 비행기 조작 버튼이나 안내를 두지 않았습니다.
 
 각 안은 `experiments/`에서 관리하며 `concept-dist/`에만 생성합니다. 공개 빌드와 배포 ZIP에는 포함하지 않습니다. 운영 사이트를 바꾸기 전에 이 경로에서 비교합니다.
 
@@ -83,6 +86,7 @@ macOS에서는 `scripts/start-site.command`와 `scripts/start-public.command`를
 | `experiments/night/`, `experiments/terminal/`, `experiments/hangar/` | 밤하늘·터미널·3D 비교 시안 |
 | `experiments/horizon/`, `experiments/daybreak/` | 이름 중심의 밝고 어두운 면을 조합한 새 절충안 |
 | `experiments/atmosphere/`, `experiments/descent/`, `experiments/orbit/` | 그라데이션·스크롤 하강·열린 문자 별 시안 |
+| `experiments/constellation/`, `experiments/sky-trail/`, `experiments/constellation-lab/` | 밤하늘의 관계 있는 별자리와 스크롤 구성 비교 |
 | `experiments/flight-lab/` | 비행기 입력 조합·모션·URL 설정 비교 |
 | `experiments/navigation.*`, `experiments/commit-records.mjs` | 전체 시안 메뉴와 검토한 실제 커밋 스냅샷 |
 | `experiments/aircraft-v2/`, `experiments/sky-engine/` | 새 787 지오메트리, 문자·입체 공유 렌더러와 입력 모션 |

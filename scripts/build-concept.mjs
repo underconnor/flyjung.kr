@@ -10,9 +10,12 @@ import { renderConcept as renderHangar } from '../experiments/hangar/render.mjs'
 import { renderConcept as renderHorizon } from '../experiments/horizon/render.mjs';
 import { renderConcept as renderDaybreak } from '../experiments/daybreak/render.mjs';
 import { renderConcept as renderAtmosphere } from '../experiments/atmosphere/render.mjs';
+import { renderConcept as renderConstellation } from '../experiments/constellation/render.mjs';
+import { renderConcept as renderSkyTrail } from '../experiments/sky-trail/render.mjs';
 import { renderConcept as renderDescent } from '../experiments/descent/render.mjs';
 import { renderConcept as renderOrbit } from '../experiments/orbit/render.mjs';
 import { renderConcept as renderFlightLab } from '../experiments/flight-lab/render.mjs';
+import { renderConcept as renderConstellationLab } from '../experiments/constellation-lab/render.mjs';
 import { projects } from '../site/data/projects.mjs';
 import { conceptRoutes } from '../experiments/navigation.mjs';
 
@@ -24,9 +27,12 @@ const concepts = [
   { source: 'horizon', filename: 'horizon', pathname: 'horizon/index.html', render: renderHorizon },
   { source: 'daybreak', filename: 'daybreak', pathname: 'daybreak/index.html', render: renderDaybreak },
   { source: 'atmosphere', filename: 'atmosphere', pathname: 'atmosphere/index.html', render: renderAtmosphere },
+  { source: 'constellation', filename: 'constellation', pathname: 'constellation/index.html', render: renderConstellation },
+  { source: 'sky-trail', filename: 'sky-trail', pathname: 'sky-trail/index.html', render: renderSkyTrail },
   { source: 'descent', filename: 'descent', pathname: 'descent/index.html', render: renderDescent },
   { source: 'orbit', filename: 'orbit', pathname: 'orbit/index.html', render: renderOrbit },
   { source: 'flight-lab', filename: 'flight-lab', pathname: 'flight-lab/index.html', render: renderFlightLab },
+  { source: 'constellation-lab', filename: 'constellation-lab', pathname: 'constellation-lab/index.html', render: renderConstellationLab },
   { source: 'night', filename: 'night', pathname: 'index.html', render: renderNight },
   { source: 'terminal', filename: 'terminal', pathname: 'terminal/index.html', render: renderTerminal },
   { source: 'hangar', filename: 'hangar', pathname: 'hangar/index.html', render: renderHangar },
