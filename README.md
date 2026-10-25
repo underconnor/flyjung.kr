@@ -26,20 +26,25 @@ http://127.0.0.1:4320/ 에서 제목·분류·본문을 입력하고 저장·미
 npm run concept
 ```
 
-새 절충안은 [밤하늘과 밝은 본문](http://127.0.0.1:4321/horizon/)과 [밝은 지면과 밤하늘 장면](http://127.0.0.1:4321/daybreak/)입니다. 이름을 주 제목으로 두고 작은 슬로건, 실제 이력에 연결된 별, 새 787 모델과 입력에 반응하는 모션을 비교합니다. 두 안 모두 CV 아래에 고정 프로젝트 최대 두 개와 검색 목록을 배치합니다.
-
-이전에 만든 두 안은 그대로 유지합니다. http://127.0.0.1:4321/ 의 별자리 안과 `/terminal/`의 ASCII 안은 깊은 인디고 블루와 **Somewhere between code and stars.**를 사용합니다.
+모든 시안은 상단 **시안 선택**에서 동등하게 비교합니다. [별자리](http://127.0.0.1:4321/)와 [787 ASCII](http://127.0.0.1:4321/terminal/)에서도 전체 메뉴를 열 수 있습니다.
 
 | 경로 | 표현과 조작 |
 | --- | --- |
-| `/` | Canvas 별자리, 섹션으로 이동하는 별, 찾아볼 수 있는 오리자리 |
-| `/terminal/` | 프레임 없는 ASCII 787, 별과 비행 경로, 접을 수 있는 명령 입력 |
+| `/` | 깊은 밤하늘과 Canvas 별자리 |
+| `/terminal/` | 프레임 없는 ASCII 787, 접을 수 있는 명령 입력 |
+| `/horizon/` | 프로젝트·활동이 문자 별로 떠 있는 연결 그래프와 밝은 본문 |
+| `/daybreak/` | 사각 패널 없이 페이지 전체로 펼쳐지는 밝은 새벽 하늘 |
+| `/atmosphere/` | 심야 인디고에서 대기와 밝은 본문으로 이어지는 그라데이션 |
+| `/descent/` | 787과 실제 저장소 커밋 별을 지나 스크롤로 내려오는 장면 |
+| `/orbit/` | 짧은 하늘 도입부와 밝은 본문을 조합한 차분한 절충안 |
+| `/flight-lab/` | 드래그·스크롤·포인터, 축·방식·감도·관성 비교 실험실 |
+| `/hangar/`, `/indigo/`, `/flight/`, `/archive/` | 787 3D·Indigo·Flight·Cobalt 시안 |
 
-CV를 먼저 보여주고, 고정 프로젝트 최대 두 개와 전체 프로젝트 목록을 이어 배치합니다. 실제 콘텐츠는 `site/data/`를 공유하며, 고정할 프로젝트는 `experiments/catalog.mjs`의 `pinnedProjectIds`에서 지정합니다. 프로젝트가 늘어나도 큰 카드가 계속 추가되지 않습니다. 787은 공식 형상을 참고해 코드로 만든 스타일 모델입니다.
+이름을 주 제목으로 두고 **Somewhere between code and stars.**는 보조 문장으로 사용합니다. CV 아래에 고정 프로젝트 최대 두 개와 전체 검색 목록을 두며, Blog는 메인 메뉴에서 별도 페이지로 이동합니다. 실제 콘텐츠는 `site/data/`를 공유하고, 고정 프로젝트는 `experiments/catalog.mjs`의 `pinnedProjectIds`에서 지정합니다. 커밋 별은 `experiments/commit-records.mjs`에 검토한 실제 저장소 기록만 담습니다.
 
-독립 3D 모델 안은 `/hangar/`, 이전 밝은 인디고 안은 `/indigo/`, 그림을 사용한 안은 `/flight/`, 파랑 안은 `/archive/`에 보관합니다.
+787은 공식 형상을 참고해 코드로 만든 스타일 모델입니다. `sky-engine`은 문자·입체 표현과 입력을 공유합니다. 실험실 설정은 URL로 복원하며 네이티브 페이지 스크롤을 유지합니다.
 
-`experiments/`에서 각각 관리하며 `concept-dist/`에만 생성합니다. 공개 빌드와 배포 ZIP에는 포함하지 않습니다. 상단 비교 메뉴로 이동하고 기존안과 비교한 뒤 적용 여부를 정합니다.
+각 안은 `experiments/`에서 관리하며 `concept-dist/`에만 생성합니다. 공개 빌드와 배포 ZIP에는 포함하지 않습니다. 운영 사이트를 바꾸기 전에 이 경로에서 비교합니다.
 
 ## 시작하기
 
@@ -77,6 +82,9 @@ macOS에서는 `scripts/start-site.command`와 `scripts/start-public.command`를
 | `editor/` | 이 컴퓨터에서만 실행하는 글쓰기 화면 |
 | `experiments/night/`, `experiments/terminal/`, `experiments/hangar/` | 밤하늘·터미널·3D 비교 시안 |
 | `experiments/horizon/`, `experiments/daybreak/` | 이름 중심의 밝고 어두운 면을 조합한 새 절충안 |
+| `experiments/atmosphere/`, `experiments/descent/`, `experiments/orbit/` | 그라데이션·스크롤 하강·열린 문자 별 시안 |
+| `experiments/flight-lab/` | 비행기 입력 조합·모션·URL 설정 비교 |
+| `experiments/navigation.*`, `experiments/commit-records.mjs` | 전체 시안 메뉴와 검토한 실제 커밋 스냅샷 |
 | `experiments/aircraft-v2/`, `experiments/sky-engine/` | 새 787 지오메트리, 문자·입체 공유 렌더러와 입력 모션 |
 | `experiments/catalog.mjs`, `experiments/aircraft/` | 공통 슬로건·고정 프로젝트, 공유 787 지오메트리 |
 | `experiments/studio/`, `experiments/flight/` | 이전 인디고 타이포 안과 그림 시안 보관 |

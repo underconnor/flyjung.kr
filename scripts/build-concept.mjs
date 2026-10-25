@@ -9,7 +9,12 @@ import { renderConcept as renderTerminal } from '../experiments/terminal/render.
 import { renderConcept as renderHangar } from '../experiments/hangar/render.mjs';
 import { renderConcept as renderHorizon } from '../experiments/horizon/render.mjs';
 import { renderConcept as renderDaybreak } from '../experiments/daybreak/render.mjs';
+import { renderConcept as renderAtmosphere } from '../experiments/atmosphere/render.mjs';
+import { renderConcept as renderDescent } from '../experiments/descent/render.mjs';
+import { renderConcept as renderOrbit } from '../experiments/orbit/render.mjs';
+import { renderConcept as renderFlightLab } from '../experiments/flight-lab/render.mjs';
 import { projects } from '../site/data/projects.mjs';
+import { conceptRoutes } from '../experiments/navigation.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const output = path.join(root, 'concept-dist');
@@ -18,6 +23,10 @@ const previous = path.join(root, '.runtime/build/concept-dist-previous');
 const concepts = [
   { source: 'horizon', filename: 'horizon', pathname: 'horizon/index.html', render: renderHorizon },
   { source: 'daybreak', filename: 'daybreak', pathname: 'daybreak/index.html', render: renderDaybreak },
+  { source: 'atmosphere', filename: 'atmosphere', pathname: 'atmosphere/index.html', render: renderAtmosphere },
+  { source: 'descent', filename: 'descent', pathname: 'descent/index.html', render: renderDescent },
+  { source: 'orbit', filename: 'orbit', pathname: 'orbit/index.html', render: renderOrbit },
+  { source: 'flight-lab', filename: 'flight-lab', pathname: 'flight-lab/index.html', render: renderFlightLab },
   { source: 'night', filename: 'night', pathname: 'index.html', render: renderNight },
   { source: 'terminal', filename: 'terminal', pathname: 'terminal/index.html', render: renderTerminal },
   { source: 'hangar', filename: 'hangar', pathname: 'hangar/index.html', render: renderHangar },
@@ -25,6 +34,22 @@ const concepts = [
   { source: 'flight', filename: 'flight', pathname: 'flight/index.html', render: renderFlight },
   { source: 'bold', filename: 'concept', pathname: 'archive/index.html', render: renderArchive },
 ];
+for (const [label, values] of [
+  ['navigation ID', conceptRoutes.map(route => route.id)],
+  ['navigation path', conceptRoutes.map(route => route.href)],
+  ['source', concepts.map(concept => concept.source)],
+  ['output path', concepts.map(concept => concept.pathname)],
+  ['asset name', concepts.map(concept => concept.filename)],
+]) {
+  if (new Set(values).size !== values.length) throw new Error(`Duplicate concept ${label}`);
+}
+for (const route of conceptRoutes) {
+  const concept = concepts.find(entry => entry.source === route.id);
+  if (!concept || '/' + concept.pathname.replace('index.html', '') !== route.href) {
+    throw new Error(`Concept navigation has no matching output: ${route.id}`);
+  }
+}
+if (conceptRoutes.length !== concepts.length) throw new Error('Every concept must appear in the shared navigation');
 function collectProjectAssets(projects) {
   const assets = new Set();
   const imageTypes = new Set(['.svg', '.png', '.jpg', '.jpeg', '.webp', '.avif']);
@@ -89,7 +114,11 @@ async function buildConcept() {
       await writeFile(path.join(staging, `${concept.filename}.css`), `${fonts}\n${styles}`);
       await copyFile(await assertRegularSource('concept.js', sourceRoot), path.join(staging, `${concept.filename}.js`));
       await mkdir(path.dirname(path.join(staging, concept.pathname)), {recursive:true});
-      await writeFile(path.join(staging, concept.pathname), concept.render());
+      const html = concept.render().replace('</head>', '<link rel="stylesheet" href="/navigation.css"><script type="module" src="/navigation.js"></script></head>');
+      await writeFile(path.join(staging, concept.pathname), html);
+    }
+    for (const filename of ['navigation.css', 'navigation.js']) {
+      await copyFile(await assertRegularSource(filename, path.join(root, 'experiments')), path.join(staging, filename));
     }
     await mkdir(path.join(staging, 'flight-assets'));
     await copyFile(await assertRegularSource('assets/flight-duck.png', path.join(root, 'experiments/flight')), path.join(staging, 'flight-assets/flight-duck.png'));

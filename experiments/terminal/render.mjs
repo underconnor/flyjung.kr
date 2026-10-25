@@ -1,7 +1,7 @@
+import { renderConceptNavigation } from '../navigation.mjs';
 import { escapeHTML as e } from '../../site/html.mjs';
 import { projects, pinnedProjects, signature } from '../catalog.mjs';
 import { careers, activities, awards, education } from '../../site/data/cv.mjs';
-import { publishedPosts } from '../../site/data/blog.mjs';
 
 const renderCVEntries = entries => `<ul class="activity-list">${entries.map(item => `<li><h4>${e(item.organization)}</h4><p>${e(item.role)}</p><p>${e(item.period)}</p></li>`).join('')}</ul>`;
 
@@ -16,8 +16,8 @@ export function renderConcept() {
 <link rel="stylesheet" href="/terminal.css"><script type="module" src="/terminal.js"></script>
 </head><body>
 <a href="#main" class="skip-link">본문으로 건너뛰기</a>
-<aside class="comparison"><div class="page-width comparison-inner"><span>표현 방식 비교</span><nav aria-label="시안 비교"><a href="/">별자리</a><a href="/terminal/" aria-current="page">ASCII flight</a><a href="http://127.0.0.1:4319/">기존 사이트</a></nav></div></aside>
-<header class="page-width site-header"><a class="brand" href="#top">flyjung<span aria-hidden="true">_</span></a><nav aria-label="주요 메뉴"><a href="#about">CV</a><a href="#work">Projects</a><a href="#writing">Notes</a></nav></header>
+${renderConceptNavigation('terminal')}
+<header class="page-width site-header"><a class="brand" href="#top">flyjung<span aria-hidden="true">_</span></a><nav aria-label="주요 메뉴"><a href="#about">CV</a><a href="#work">Projects</a><a href="http://127.0.0.1:4319/blog/">Blog</a></nav></header>
 <main id="main" tabindex="-1">
 <section class="page-width hero" id="top" aria-labelledby="hero-title">
   <div class="hero-layout">
@@ -46,7 +46,7 @@ loading geometry...</pre></div>
   ${pinnedProjects.slice(0,2).map(project => `<details class="project" id="${e(project.id)}" data-project="${e(project.id)}"><summary><span class="project-name">${e(project.title)}</span><span class="project-summary">${e(project.summary)}</span><span class="disclosure-mark" aria-hidden="true">+</span></summary><div class="project-body"><div class="project-copy"><p class="project-role">${e(project.role)}</p>${project.details.map(detail => `<div><h3>${e(detail.label)}</h3>${detail.paragraphs.map(p => `<p>${e(p)}</p>`).join('')}</div>`).join('')}<a href="http://127.0.0.1:4319/projects/#${e(project.id)}">프로젝트 페이지 열기</a></div><div class="project-media">${project.images.map(image => `<figure><img src="${e(image.src)}" alt="${e(image.alt)}" width="${image.width}" height="${image.height}" loading="lazy" decoding="async"></figure>`).join('')}</div></div></details>`).join('')}
 </section>
 <section class="page-width all-projects" id="projects" aria-labelledby="projects-title"><div class="section-heading"><h2 id="projects-title">전체 프로젝트</h2><p class="file-path">~/projects</p></div><div class="project-search"><label for="project-search">프로젝트 검색</label><div><input type="search" id="project-search" maxlength="80" placeholder="이름이나 내용으로 찾기" autocomplete="off"><button type="button" id="project-search-reset" hidden>초기화</button></div><p id="project-search-count" role="status">${projects.length}개 프로젝트</p></div><ul id="project-list">${projects.map(project=>`<li><a href="http://127.0.0.1:4319/projects/#${e(project.id)}"><span>${e(project.title)}</span><span>${e(project.summary)}</span><span aria-hidden="true">↗</span></a></li>`).join('')}</ul><p id="project-search-empty" class="empty-note" hidden>일치하는 프로젝트가 없습니다. 다른 검색어로 찾아보세요.</p></section>
-<section class="page-width writing-section" id="writing" aria-labelledby="writing-title"><div class="section-heading"><h2 id="writing-title">기록</h2><p class="file-path">~/notes</p></div><div>${publishedPosts.length ? `<ul class="notes-list">${publishedPosts.slice(0,2).map(post => `<li><a href="http://127.0.0.1:4319/blog/${e(post.slug)}/"><time datetime="${e(post.date)}">${e(post.date)}</time><span>${e(post.title)}</span></a></li>`).join('')}</ul>` : `<p>만들면서 배운 것과<br>그때의 생각을 남길 곳.</p><p class="empty-note">아직 공개한 글은 없습니다.</p>`}<a href="http://127.0.0.1:4319/blog/">블로그 열기</a></div></section>
+
 </main><footer class="page-width site-footer"><a href="#top">flyjung_</a><p>정지원 / Jiwon Jung</p><a href="/">별자리 안과 비교</a></footer>
 </body></html>`;
 }

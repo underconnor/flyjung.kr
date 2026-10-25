@@ -1,3 +1,4 @@
+import { renderConceptNavigation } from '../navigation.mjs';
 import { escapeHTML as e } from '../../site/html.mjs';
 import { projects } from '../../site/data/projects.mjs';
 import { activities, awards, education } from '../../site/data/cv.mjs';
@@ -40,12 +41,10 @@ export function renderConcept() {
 </head>
 <body>
   <a class="skip-link" href="#main">본문으로 건너뛰기</a>
-  <aside class="comparison-bar" aria-label="디자인 시안 비교">
-    <div class="comparison-inner page-width"><p>이전 시안 보관</p><nav aria-label="비교할 시안"><a href="/">밤하늘</a><a href="/terminal/">터미널</a><a href="/hangar/">787 3D</a><a href="/indigo/">이전 인디고</a><a href="http://127.0.0.1:4319/">기존 사이트</a></nav></div>
-  </aside>
+  ${renderConceptNavigation('flight')}
   <header class="site-header page-width">
     <a class="wordmark" href="#top" aria-label="flyjung 처음으로">flyjung<span class="wordmark-plane">${planeIcon}</span></a>
-    <nav aria-label="주요 메뉴"><a href="#work">만든 것</a><a href="#about">활동</a><a href="#writing">기록</a></nav>
+    <nav aria-label="주요 메뉴"><a href="#work">만든 것</a><a href="#about">활동</a><a href="http://127.0.0.1:4319/blog/">Blog</a></nav>
   </header>
   <main id="main" tabindex="-1">
     <section class="hero page-width" id="top" aria-labelledby="hero-title">
@@ -69,9 +68,9 @@ export function renderConcept() {
         <div class="about-extra"><div><h3>수상</h3>${awards.map(award => `<p>${e(award.title)}<span>${e(award.distinction)}</span></p>`).join('')}</div><div><h3>학력</h3>${education.map(entry => `<p>${e(entry.organization)}<span>${e(entry.period)}</span></p>`).join('')}</div></div>
       </div>
     </section>
-    <section class="writing-section" id="writing" aria-labelledby="writing-title"><div class="writing-inner page-width"><h2 id="writing-title">생각도<br>남겨 두고.</h2><div><p>프로젝트를 만들며 고민한 것,<br>배우고 나서 달라진 생각을 적으려 합니다.</p><p class="writing-empty">첫 글은 아직 준비 중입니다.</p><a class="quiet-link" href="http://127.0.0.1:4319/blog/">블로그 보기</a></div><span class="writing-plane" aria-hidden="true">${planeIcon}</span></div></section>
+
   </main>
-  <footer class="site-footer page-width"><a href="#top" class="footer-name">flyjung.</a><p>정지원의 웹사이트</p><a href="http://127.0.0.1:4319/">기존 안과 비교하기</a></footer>
+  <footer class="site-footer page-width"><a href="#top" class="footer-name">flyjung.</a><p>정지원의 웹사이트</p><a href="http://127.0.0.1:4319/">공개 사이트</a></footer>
 </body>
 </html>`;
 }

@@ -1,3 +1,4 @@
+import { renderConceptNavigation } from '../navigation.mjs';
 import { escapeHTML as e } from '../../site/html.mjs';
 import { projects } from '../../site/data/projects.mjs';
 import { activities, awards, education } from '../../site/data/cv.mjs';
@@ -39,15 +40,10 @@ export function renderConcept() {
 </head>
 <body>
 <a class="skip-link" href="#main">본문으로 건너뛰기</a>
-<aside class="comparison" aria-label="시안 비교">
-  <div class="comparison-inner page-width">
-    <p>시안 비교</p>
-    <nav aria-label="디자인 시안"><a href="/">밤하늘</a><a href="/terminal/">터미널</a><a href="/hangar/">787 3D</a><a href="/indigo/" aria-current="page">이전 인디고</a><a href="http://127.0.0.1:4319/">기존 안</a></nav>
-  </div>
-</aside>
+${renderConceptNavigation('studio')}
 <header class="site-header page-width">
   <a class="brand" href="#top">flyjung</a>
-  <nav aria-label="주 메뉴"><a href="#work">만든 것</a><a href="#about">활동</a><a href="#writing">기록</a></nav>
+  <nav aria-label="주 메뉴"><a href="#work">만든 것</a><a href="#about">활동</a><a href="http://127.0.0.1:4319/blog/">Blog</a></nav>
 </header>
 <main id="main" tabindex="-1">
   <section class="hero page-width" id="top" aria-labelledby="hero-title">
@@ -70,10 +66,7 @@ export function renderConcept() {
       <div class="about-extra"><h3>학력</h3><ul>${education.map(entry => `<li><span>${e(entry.organization)}</span><span>${e(entry.period)}</span></li>`).join('')}</ul></div>
     </div>
   </section>
-  <section class="writing page-width" id="writing" aria-labelledby="writing-title">
-    <h2 id="writing-title">기록</h2>
-    <div><p>만들면서 배운 것과<br>그때의 생각을 남길 곳입니다.</p><p class="writing-status">아직 공개한 글은 없습니다.</p><a class="detail-link" href="https://flyjung.kr/blog/">블로그 보기</a></div>
-  </section>
+
 </main>
 <footer class="site-footer page-width"><a href="#top" class="footer-brand" aria-label="첫 화면으로">flyjung</a><div><p>정지원 / Jiwon Jung</p><p>© 2026 flyjung.kr</p></div></footer>
 </body>

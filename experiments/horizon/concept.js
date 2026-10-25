@@ -1,15 +1,86 @@
 const skyMap = document.querySelector('.sky-map');
-const yearLine = document.querySelector('#year-line');
-function placeYearLine() {
+const graphNodes = [...skyMap.querySelectorAll('[data-graph-node]')];
+const graphEdges = [...skyMap.querySelectorAll('[data-graph-edge]')];
+const graphCaption = document.querySelector('#graph-caption');
+const defaultGraphCaption = graphCaption.textContent;
+function placeGraphEdges() {
   const bounds = skyMap.getBoundingClientRect();
-  const points = [...skyMap.querySelectorAll('.star-point')].map(star => {
-    const point = star.getBoundingClientRect();
-    return `${(point.x + point.width / 2 - bounds.x) / bounds.width * 100},${(point.y + point.height / 2 - bounds.y) / bounds.height * 100}`;
-  });
-  yearLine.setAttribute('points', points.join(' '));
+  const center = element => {
+    const point = element.getBoundingClientRect();
+    return { x:(point.x + point.width / 2 - bounds.x) / bounds.width * 100, y:(point.y + point.height / 2 - bounds.y) / bounds.height * 100 };
+  };
+  const hub = center(skyMap.querySelector('.graph-hub .node-star'));
+  for (const edge of graphEdges) {
+    const node = graphNodes.find(item => item.dataset.graphNode === edge.dataset.graphEdge);
+    const point = center(node.querySelector('.node-star'));
+    for (const [name,value] of Object.entries({x1:hub.x,y1:hub.y,x2:point.x,y2:point.y})) edge.setAttribute(name,String(value));
+  }
 }
-new ResizeObserver(placeYearLine).observe(skyMap);
-document.fonts.ready.then(placeYearLine);
+const graphObserver = new ResizeObserver(placeGraphEdges);
+graphObserver.observe(skyMap);
+document.fonts.ready.then(placeGraphEdges);
+let hoverNode = null;
+function highlightGraph() {
+  const node = graphNodes.find(item => item === document.activeElement) || hoverNode;
+  const key = node?.dataset.graphNode;
+  if (key) skyMap.dataset.active = key;
+  else delete skyMap.dataset.active;
+  for (const item of graphNodes) item.classList.toggle('is-active',item === node);
+  for (const edge of graphEdges) edge.classList.toggle('is-active',edge.dataset.graphEdge === key);
+  graphCaption.textContent = node?.dataset.description || defaultGraphCaption;
+}
+for (const node of graphNodes) {
+  node.addEventListener('pointerenter', event => { if (event.pointerType !== 'touch') { hoverNode = node; highlightGraph(); } });
+  node.addEventListener('pointerleave', () => { hoverNode = null; highlightGraph(); });
+  node.addEventListener('focus', highlightGraph);
+  node.addEventListener('blur', () => { queueMicrotask(highlightGraph); });
+}
+
+const starCanvas = document.querySelector('#ascii-stars');
+const starContext = starCanvas.getContext('2d');
+const hero = document.querySelector('.hero');
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+let starFrame = 0, starWidth = 0, starHeight = 0, painted = 0;
+const pointer = { x:0, y:0 };
+let seed = 6073;
+const random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+const stars = Array.from({length:105}, () => ({x:random(),y:random(),depth:.35+random()*.65,size:8+random()*5,opacity:.22+random()*.4,letter:random()<.55?'.':random()<.6?'+':'*'}));
+function drawStars() {
+  starFrame = 0;
+  if (!starContext || !starWidth || !starHeight || document.hidden) return;
+  const ratio = Math.min(devicePixelRatio || 1,2);
+  starContext.setTransform(ratio,0,0,ratio,0,0);
+  starContext.clearRect(0,0,starWidth,starHeight);
+  starContext.textAlign = 'center'; starContext.textBaseline = 'middle';
+  for (const star of stars) {
+    const x = star.x * starWidth + pointer.x * star.depth;
+    const y = star.y * starHeight + pointer.y * star.depth;
+    const shade = starWidth > 600 ? (x < starWidth * .48 ? .38 : 1) : (y < starHeight * .48 ? .4 : 1);
+    starContext.font = `${star.size}px ui-monospace, SFMono-Regular, Consolas, monospace`;
+    starContext.fillStyle = `rgba(174,194,247,${star.opacity * shade})`;
+    starContext.fillText(star.letter,x,y);
+  }
+  starCanvas.dataset.renderCount = String(++painted);
+}
+function requestStars() { if (!starFrame && !document.hidden) starFrame = requestAnimationFrame(drawStars); }
+const starObserver = starContext ? new ResizeObserver(() => {
+  const bounds = hero.getBoundingClientRect();
+  starWidth = bounds.width; starHeight = bounds.height;
+  const ratio = Math.min(devicePixelRatio || 1,2);
+  starCanvas.width = Math.round(starWidth * ratio); starCanvas.height = Math.round(starHeight * ratio);
+  requestStars();
+}) : null;
+starObserver?.observe(hero);
+hero.addEventListener('pointermove', event => {
+  if (!starContext || reducedMotion.matches || event.pointerType === 'touch') return;
+  const bounds = hero.getBoundingClientRect();
+  pointer.x = (event.clientX - bounds.x - bounds.width / 2) / bounds.width * 8;
+  pointer.y = (event.clientY - bounds.y - bounds.height / 2) / bounds.height * 8;
+  requestStars();
+});
+hero.addEventListener('pointerleave', () => { pointer.x = pointer.y = 0; requestStars(); });
+reducedMotion.addEventListener('change', () => { pointer.x = pointer.y = 0; requestStars(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) requestStars(); });
 
 const searchForm = document.querySelector('.catalog-search');
 const search = document.querySelector('#project-search');
@@ -98,4 +169,6 @@ async function mountAircraft() {
   }
 }
 mountAircraft();
-window.addEventListener('pagehide', event => { if (!event.persisted) viewer?.destroy(); });
+window.addEventListener('pagehide', event => {
+  if (!event.persisted) { viewer?.destroy(); graphObserver.disconnect(); starObserver?.disconnect(); cancelAnimationFrame(starFrame); }
+});

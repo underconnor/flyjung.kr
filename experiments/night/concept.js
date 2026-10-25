@@ -60,7 +60,7 @@ if(context){
   new ResizeObserver(resize).observe(hero);resize();
   hero.addEventListener('pointermove',event=>{if(motion.matches||event.pointerType==='touch')return;const box=hero.getBoundingClientRect();pointer.x=(event.clientX-box.x-box.width/2)/box.width*12;pointer.y=(event.clientY-box.y-box.height/2)/box.height*12;requestRender();});
   hero.addEventListener('pointerleave',()=>{pointer.x=pointer.y=0;active='';requestRender();});
-  const describeSky=()=>{caption.textContent=duckVisible?'별 사이에 오리 한 마리.':linked?'CV, 작업, 기록을 별로 이었습니다.':'별을 따라 둘러보세요.';};
+  const describeSky=()=>{caption.textContent=duckVisible?'별 사이에 오리 한 마리.':linked?'CV, 프로젝트, 블로그를 별로 이었습니다.':'별을 따라 둘러보세요.';};
   connections.addEventListener('click',()=>{linked=!linked;connections.setAttribute('aria-pressed',String(linked));describeSky();requestRender();});
   duckButton.addEventListener('click',()=>{duckVisible=!duckVisible;active='';duckButton.setAttribute('aria-pressed',String(duckVisible));navigation.classList.toggle('showing-duck',duckVisible);navigation.inert=duckVisible;navigation.setAttribute('aria-hidden',String(duckVisible));describeSky();requestRender();});
   for(const link of links){for(const event of ['pointerenter','focus'])link.addEventListener(event,()=>{active=link.dataset.star;requestRender();});for(const event of ['pointerleave','blur'])link.addEventListener(event,()=>{active='';requestRender();});}

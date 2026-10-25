@@ -1,3 +1,4 @@
+import { renderConceptNavigation } from '../navigation.mjs';
 import { escapeHTML as e } from '../../site/html.mjs';
 import { activities, awards, education } from '../../site/data/cv.mjs';
 import { projects, pinnedProjects, signature } from '../catalog.mjs';
@@ -19,7 +20,7 @@ export function renderConcept() {
 </head>
 <body>
   <a class="skip-link" href="#main">본문으로 건너뛰기</a>
-  <aside class="comparison"><nav class="page-width" aria-label="시안 비교"><span>시안 비교</span><a href="/">밤하늘</a><a href="/terminal/">터미널</a><a href="/hangar/" aria-current="page">787 3D</a><a href="http://127.0.0.1:4319/">기존 사이트</a></nav></aside>
+  ${renderConceptNavigation('hangar')}
   <header class="site-header page-width"><a href="#top" class="wordmark">flyjung.</a><nav aria-label="주 메뉴"><a href="#cv">CV</a><a href="#work">Projects</a><a href="http://127.0.0.1:4319/blog/">Blog</a></nav></header>
   <main id="main" tabindex="-1">
     <section class="hero page-width" id="top" aria-labelledby="hero-title">

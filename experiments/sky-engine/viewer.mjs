@@ -1,8 +1,25 @@
 const views = Object.freeze({
-  three: { azimuth: .52, elevation: .62 },
-  side: { azimuth: 0, elevation: .025 },
-  top: { azimuth: 0, elevation: Math.PI / 2 - .01 },
+  three: { azimuth: .52, elevation: .62, roll: 0 },
+  side: { azimuth: 0, elevation: .025, roll: 0 },
+  top: { azimuth: 0, elevation: Math.PI / 2 - .01, roll: 0 },
 });
+const defaultInputOptions = Object.freeze({ drag: true, scroll: false, pointer: false, axis: 'both', type: 'orbit', sensitivity: 1, inertia: .5, reducedMotion: 'system' });
+function mergeInputOptions(previous, patch) {
+  if (!patch || typeof patch !== 'object' || Array.isArray(patch)) return null;
+  const next = { ...previous };
+  for (const key of Object.keys(patch)) {
+    const value = patch[key];
+    if (!Object.hasOwn(defaultInputOptions, key)) return null;
+    if (['drag', 'scroll', 'pointer'].includes(key) && typeof value !== 'boolean') return null;
+    if (key === 'axis' && !['horizontal', 'vertical', 'both'].includes(value)) return null;
+    if (key === 'type' && !['orbit', 'bank'].includes(value)) return null;
+    if (key === 'reducedMotion' && !['system', 'reduce', 'full'].includes(value)) return null;
+    if (key === 'sensitivity' && (!Number.isFinite(value) || value < .25 || value > 2.5)) return null;
+    if (key === 'inertia' && (!Number.isFinite(value) || value < 0 || value > 1)) return null;
+    next[key] = value;
+  }
+  return next;
+}
 const instances = new WeakMap();
 const fieldOfView = .42;
 let modelPromise;
@@ -37,8 +54,9 @@ const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 
 function basis(angles) {
   const z = [Math.sin(angles.azimuth) * Math.cos(angles.elevation), Math.sin(angles.elevation), Math.cos(angles.azimuth) * Math.cos(angles.elevation)];
-  const x = normalize(cross([0, 1, 0], z));
-  return { x, y: cross(z, x), z };
+  const right = normalize(cross([0, 1, 0], z)), up = cross(z, right);
+  const cosine = Math.cos(angles.roll || 0), sine = Math.sin(angles.roll || 0);
+  return { x: right.map((value, i) => value * cosine + up[i] * sine), y: up.map((value, i) => value * cosine - right[i] * sine), z };
 }
 
 function multiply(a, b) {
@@ -189,11 +207,14 @@ function createAsciiRenderer(pre, model) {
 }
 
 /** Mount a transparent, on-demand 787 scene. The host supplies its dimensions and color. */
-export function createSkyViewer(host, { mode = 'ascii', interactive = true } = {}) {
+export function createSkyViewer(host, { mode = 'ascii', interactive = true, inputOptions = {} } = {}) {
   if (!host || host.nodeType !== 1) throw new TypeError('A viewer host element is required');
   if (!['ascii', 'solid'].includes(mode)) throw new TypeError('Viewer mode must be ascii or solid');
+  let inputs = mergeInputOptions(defaultInputOptions, inputOptions);
+  if (!inputs) throw new TypeError('Invalid viewer input options');
+  if (!interactive) inputs = { ...inputs, drag: false, scroll: false, pointer: false };
   instances.get(host)?.destroy();
-  const originalAttributes = new Map(['tabindex', 'role', 'aria-label', 'aria-busy', 'aria-keyshortcuts', 'data-ready', 'data-mode', 'data-view', 'data-renderer', 'data-animating', 'data-dragging', 'data-render-count', 'data-azimuth', 'data-elevation'].map(name => [name, host.getAttribute(name)]));
+  const originalAttributes = new Map(['tabindex', 'role', 'aria-label', 'aria-busy', 'aria-keyshortcuts', 'data-ready', 'data-mode', 'data-view', 'data-renderer', 'data-animating', 'data-dragging', 'data-render-count', 'data-azimuth', 'data-elevation', 'data-roll'].map(name => [name, host.getAttribute(name)]));
   const originalTouchAction = host.style.touchAction;
   const listeners = [];
   const listen = (target, event, callback, options) => {
@@ -226,18 +247,24 @@ export function createSkyViewer(host, { mode = 'ascii', interactive = true } = {
   let ready = 'loading', renderer = 'text', view = 'three';
   let angles = { ...views.three }, distance = 30, width = 1, height = 1, renderCount = 0;
   let frame = 0, transition = null, inertia = null, drag = null, intersecting = true;
+  let pointerAngles = { azimuth: 0, elevation: 0, roll: 0 }, pointerMotion = null;
+  let externalReference = { ...views.three }, lastScroll = window.scrollY || 0;
   const visible = () => intersecting && !document.hidden;
-  const getState = () => ({ ready, mode, view, renderer, animating: !!(transition || inertia), azimuth: angles.azimuth, elevation: angles.elevation, renderCount });
+  const reducedMotion = () => inputs.reducedMotion === 'reduce' || (inputs.reducedMotion === 'system' && motion.matches);
+  const displayedAngles = () => ({ azimuth: angles.azimuth + pointerAngles.azimuth, elevation: clamp(angles.elevation + pointerAngles.elevation, -1.35, 1.55), roll: clamp(angles.roll + pointerAngles.roll, -.8, .8) });
+  const animating = () => !!(transition || inertia || pointerMotion);
+  const getState = () => ({ ready, mode, view, renderer, animating: animating(), dragging: !!drag, ...displayedAngles(), inputOptions: { ...inputs }, reducedMotion: reducedMotion(), renderCount });
   function publish() {
     if (destroyed) return;
     host.dataset.ready = ready; host.dataset.mode = mode; host.dataset.view = view; host.dataset.renderer = renderer;
-    host.dataset.animating = String(!!(transition || inertia));
+    host.dataset.animating = String(animating());
     host.setAttribute('aria-busy', String(ready === 'loading'));
     host.dispatchEvent(new CustomEvent('skyviewerchange', { detail: getState() }));
   }
   function stopMotion(finishTransition = false) {
     if (finishTransition && transition) { angles = { ...transition.target }; distance = transition.distance; }
-    transition = null; inertia = null;
+    if (finishTransition && pointerMotion) pointerAngles = { ...pointerMotion.target };
+    transition = null; inertia = null; pointerMotion = null;
     if (frame) cancelAnimationFrame(frame);
     frame = 0;
   }
@@ -276,36 +303,45 @@ export function createSkyViewer(host, { mode = 'ascii', interactive = true } = {
   function draw(now) {
     frame = 0;
     if (destroyed || !aircraft || !visible()) return;
-    const wasAnimating = !!(transition || inertia);
+    const wasAnimating = animating();
     if (transition) {
       const progress = clamp((now - transition.started) / 240, 0, 1), eased = 1 - (1 - progress) ** 3;
       angles.azimuth = transition.from.azimuth + transition.deltaAzimuth * eased;
       angles.elevation = transition.from.elevation + (transition.target.elevation - transition.from.elevation) * eased;
+      angles.roll = transition.from.roll + (transition.target.roll - transition.from.roll) * eased;
       distance = transition.fromDistance + (transition.distance - transition.fromDistance) * eased;
       if (progress === 1) { angles = { ...transition.target }; distance = transition.distance; transition = null; }
     } else if (inertia) {
-      const elapsed = Math.min(600, now - inertia.started), decay = Math.exp(-elapsed / 120), travel = 120 * (1 - decay);
+      const elapsed = Math.min(inertia.duration, now - inertia.started), decay = Math.exp(-elapsed / inertia.decay), travel = inertia.decay * (1 - decay);
       angles.azimuth = inertia.from.azimuth + inertia.x * travel;
       angles.elevation = clamp(inertia.from.elevation + inertia.y * travel, -1.35, 1.55);
-      if (elapsed === 600 || Math.max(Math.abs(inertia.x), Math.abs(inertia.y)) * decay < .000015) inertia = null;
+      angles.roll = clamp(inertia.from.roll + inertia.roll * travel, -.8, .8);
+      if (elapsed === inertia.duration || Math.max(Math.abs(inertia.x), Math.abs(inertia.y), Math.abs(inertia.roll)) * decay < .000015) inertia = null;
+    }
+    if (pointerMotion) {
+      const progress = clamp((now - pointerMotion.started) / 140, 0, 1), eased = 1 - (1 - progress) ** 3;
+      for (const key of ['azimuth', 'elevation', 'roll']) pointerAngles[key] = pointerMotion.from[key] + (pointerMotion.target[key] - pointerMotion.from[key]) * eased;
+      if (progress === 1) pointerMotion = null;
     }
     ensureRenderer();
+    const displayed = displayedAngles();
     // Widen only when a rotated wing would leave the frame; never zoom back in during a drag.
-    if (view === 'custom') distance = Math.max(distance, fitDistance(aircraft, angles, width, height));
-    const camera = cameraFor(aircraft, angles, distance, width, height);
+    if (view === 'custom' || inputs.pointer) distance = Math.max(distance, fitDistance(aircraft, displayed, width, height));
+    const camera = cameraFor(aircraft, displayed, distance, width, height);
     if (renderer === 'webgl') solid.draw(camera, width, height);
     else ascii.draw(camera, width, height);
     renderCount++;
-    host.dataset.renderCount = String(renderCount); host.dataset.azimuth = angles.azimuth.toFixed(4); host.dataset.elevation = angles.elevation.toFixed(4);
-    if (wasAnimating && !transition && !inertia) publish();
-    if (transition || inertia) schedule();
+    host.dataset.renderCount = String(renderCount); host.dataset.azimuth = displayed.azimuth.toFixed(4); host.dataset.elevation = displayed.elevation.toFixed(4); host.dataset.roll = displayed.roll.toFixed(4);
+    if (wasAnimating && !animating()) publish();
+    if (animating()) schedule();
   }
   function setView(name, animate = true) {
     if (destroyed || !Object.hasOwn(views, name)) return false;
     stopMotion();
     const target = views[name], targetDistance = aircraft ? fitDistance(aircraft, target, width, height) : distance;
+    externalReference = { ...target }; pointerAngles = { azimuth: 0, elevation: 0, roll: 0 };
     view = name;
-    if (!animate || motion.matches || !visible() || !aircraft) { angles = { ...target }; distance = targetDistance; }
+    if (!animate || reducedMotion() || !visible() || !aircraft) { angles = { ...target }; distance = targetDistance; }
     else {
       transition = { started: performance.now(), from: { ...angles }, target, fromDistance: distance, distance: targetDistance, deltaAzimuth: Math.atan2(Math.sin(target.azimuth - angles.azimuth), Math.cos(target.azimuth - angles.azimuth)) };
     }
@@ -315,22 +351,61 @@ export function createSkyViewer(host, { mode = 'ascii', interactive = true } = {
     if (destroyed || !['ascii', 'solid'].includes(nextMode)) return false;
     mode = nextMode; publish(); schedule(); return true;
   }
+  function setOrientation(pose) {
+    if (destroyed || !pose || typeof pose !== 'object') return false;
+    const keys = ['azimuth', 'elevation', 'roll'];
+    if (!keys.some(key => Object.hasOwn(pose, key)) || keys.some(key => Object.hasOwn(pose, key) && !Number.isFinite(pose[key]))) return false;
+    if ((pose.immediate !== undefined && typeof pose.immediate !== 'boolean') || (pose.preserveInput !== undefined && typeof pose.preserveInput !== 'boolean')) return false;
+    const reference = { ...externalReference }, target = { ...angles };
+    for (const key of keys) if (Object.hasOwn(pose, key)) {
+      reference[key] = key === 'elevation' ? clamp(pose[key], -1.35, 1.55) : key === 'roll' ? clamp(pose[key], -.8, .8) : pose[key];
+      target[key] = pose.preserveInput ? angles[key] + reference[key] - externalReference[key] : reference[key];
+    }
+    target.elevation = clamp(target.elevation, -1.35, 1.55); target.roll = clamp(target.roll, -.8, .8);
+    externalReference = reference; stopMotion(); view = 'custom';
+    const targetDistance = aircraft ? Math.max(distance, fitDistance(aircraft, target, width, height)) : distance;
+    if (pose.immediate || reducedMotion() || !visible() || !aircraft) { angles = target; distance = targetDistance; }
+    else transition = { started: performance.now(), from: { ...angles }, target, fromDistance: distance, distance: targetDistance, deltaAzimuth: Math.atan2(Math.sin(target.azimuth - angles.azimuth), Math.cos(target.azimuth - angles.azimuth)) };
+    publish(); schedule(); return true;
+  }
+  function setInputOptions(patch) {
+    const next = mergeInputOptions(inputs, patch);
+    if (destroyed || !next || (!interactive && (next.drag || next.scroll || next.pointer))) return false;
+    endDrag(null, false); stopMotion(true); inputs = next;
+    pointerAngles = { azimuth: 0, elevation: 0, roll: 0 }; lastScroll = window.scrollY || 0;
+    publish(); schedule(); return true;
+  }
+  function inputDelta(x, y) {
+    if (inputs.axis === 'vertical') x = 0;
+    if (inputs.axis === 'horizontal') y = 0;
+    return inputs.type === 'bank' ? { azimuth: x * .18, elevation: y * .5, roll: x * .8 } : { azimuth: x, elevation: y, roll: 0 };
+  }
+  function applyDelta(delta) {
+    angles.azimuth += delta.azimuth; angles.elevation = clamp(angles.elevation + delta.elevation, -1.35, 1.55); angles.roll = clamp(angles.roll + delta.roll, -.8, .8);
+    view = 'custom';
+  }
+  function followPointer(target) {
+    if (reducedMotion() || !visible()) { pointerAngles = target; pointerMotion = null; }
+    else pointerMotion = { from: { ...pointerAngles }, target, started: performance.now() };
+    publish(); schedule();
+  }
   function endDrag(event, continueMotion) {
     if (!drag || (event && event.pointerId !== drag.id)) return;
     const previous = drag;
     drag = null; host.dataset.dragging = 'false';
     if (host.hasPointerCapture?.(previous.id)) host.releasePointerCapture(previous.id);
-    if (continueMotion && previous.moved && performance.now() - previous.time < 90 && !motion.matches && visible()) {
-      const x = clamp(previous.vx, -.003, .003), y = clamp(previous.vy, -.003, .003);
-      if (Math.max(Math.abs(x), Math.abs(y)) > .00006) inertia = { started: performance.now(), from: { ...angles }, x, y };
+    if (continueMotion && inputs.inertia > 0 && previous.moved && performance.now() - previous.time < 90 && !reducedMotion() && visible()) {
+      const strength = .4 + inputs.inertia * 1.2;
+      const x = clamp(previous.vx, -.003, .003) * strength, y = clamp(previous.vy, -.003, .003) * strength, roll = clamp(previous.vr, -.003, .003) * strength;
+      if (Math.max(Math.abs(x), Math.abs(y), Math.abs(roll)) > .00006) inertia = { started: performance.now(), from: { ...angles }, x, y, roll, duration: 300 + inputs.inertia * 600, decay: 60 + inputs.inertia * 120 };
     }
     publish(); schedule();
   }
   if (interactive) {
     listen(host, 'pointerdown', event => {
-      if (drag || event.button !== 0 || event.isPrimary === false || !aircraft) return;
+      if (!inputs.drag || drag || event.button !== 0 || event.isPrimary === false || !aircraft) return;
       stopMotion();
-      drag = { id: event.pointerId, startX: event.clientX, startY: event.clientY, x: event.clientX, y: event.clientY, time: performance.now(), vx: 0, vy: 0, moved: false, touch: event.pointerType === 'touch' };
+      drag = { id: event.pointerId, startX: event.clientX, startY: event.clientY, x: event.clientX, y: event.clientY, time: performance.now(), vx: 0, vy: 0, vr: 0, moved: false, touch: event.pointerType === 'touch' };
       host.setPointerCapture?.(event.pointerId); host.dataset.dragging = 'true';
       if (event.pointerType === 'mouse') host.focus({ preventScroll: true });
       publish();
@@ -343,13 +418,13 @@ export function createSkyViewer(host, { mode = 'ascii', interactive = true } = {
         if (Math.abs(dx) < 6) return;
       }
       const now = performance.now(), elapsed = Math.max(8, now - drag.time);
-      const x = -(event.clientX - drag.x) * .007, y = drag.touch ? 0 : (event.clientY - drag.y) * .006;
-      if (!x && !y) return;
-      angles.azimuth += x; angles.elevation = clamp(angles.elevation + y, -1.35, 1.55);
-      drag.vx = drag.vx * .25 + x / elapsed * .75; drag.vy = drag.vy * .25 + y / elapsed * .75;
+      const x = -(event.clientX - drag.x) * .007 * inputs.sensitivity, y = drag.touch ? 0 : (event.clientY - drag.y) * .006 * inputs.sensitivity;
+      const delta = inputDelta(x, y);
+      if (!delta.azimuth && !delta.elevation && !delta.roll) return;
+      applyDelta(delta);
+      drag.vx = drag.vx * .25 + delta.azimuth / elapsed * .75; drag.vy = drag.vy * .25 + delta.elevation / elapsed * .75; drag.vr = drag.vr * .25 + delta.roll / elapsed * .75;
       drag.x = event.clientX; drag.y = event.clientY; drag.time = now; drag.moved = true;
-      if (view !== 'custom') { view = 'custom'; publish(); }
-      schedule();
+      publish(); schedule();
     });
     listen(host, 'pointerup', event => endDrag(event, true));
     listen(host, 'pointercancel', event => endDrag(event, false));
@@ -360,9 +435,24 @@ export function createSkyViewer(host, { mode = 'ascii', interactive = true } = {
       const steps = { ArrowLeft: [.12, 0], ArrowRight: [-.12, 0], ArrowUp: [0, .1], ArrowDown: [0, -.1] };
       if (!Object.hasOwn(steps, event.key)) return;
       event.preventDefault(); stopMotion();
-      angles.azimuth += steps[event.key][0]; angles.elevation = clamp(angles.elevation + steps[event.key][1], -1.35, 1.55);
-      view = 'custom'; publish(); schedule();
+      applyDelta(inputDelta(steps[event.key][0] * inputs.sensitivity, steps[event.key][1] * inputs.sensitivity));
+      publish(); schedule();
     });
+    listen(host, 'pointermove', event => {
+      if (!inputs.pointer || drag || event.pointerType !== 'mouse' || event.buttons || !aircraft || !visible()) return;
+      const box = host.getBoundingClientRect();
+      const x = clamp((event.clientX - box.left) / Math.max(1, box.width) * 2 - 1, -1, 1);
+      const y = clamp((event.clientY - box.top) / Math.max(1, box.height) * 2 - 1, -1, 1);
+      followPointer(inputDelta(-x * .28 * inputs.sensitivity, y * .19 * inputs.sensitivity));
+    }, { passive: true });
+    listen(host, 'pointerleave', () => { if (inputs.pointer && !drag) followPointer({ azimuth: 0, elevation: 0, roll: 0 }); });
+    listen(window, 'scroll', () => {
+      const next = window.scrollY || 0, delta = next - lastScroll; lastScroll = next;
+      if (!inputs.scroll || !aircraft || !visible() || !delta) return;
+      stopMotion();
+      const amount = clamp(delta, -160, 160) / Math.max(500, window.innerHeight || 800) * .8 * inputs.sensitivity;
+      applyDelta(inputDelta(amount * .8, amount * .45)); publish(); schedule();
+    }, { passive: true });
   }
   const resizeObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(measure) : null;
   if (resizeObserver) resizeObserver.observe(host);
@@ -377,15 +467,17 @@ export function createSkyViewer(host, { mode = 'ascii', interactive = true } = {
     if (!visible()) { endDrag(null, false); stopMotion(true); publish(); }
     else schedule();
   });
-  listen(motion, 'change', () => { if (motion.matches) { stopMotion(true); publish(); schedule(); } });
+  listen(motion, 'change', () => { if (reducedMotion()) stopMotion(true); publish(); schedule(); });
   listen(canvas, 'webglcontextlost', event => {
     event.preventDefault(); contextLost = true; solid = null; stopMotion(true); publish(); schedule();
   });
   listen(canvas, 'webglcontextrestored', () => { contextLost = false; solidFailed = false; schedule(); });
   const api = {
     setMode,
-    setView: name => setView(name),
-    reset: () => setView('three'),
+    setOrientation,
+    setInputOptions,
+    setView: (name, options = {}) => setView(name, options?.immediate !== true),
+    reset: (options = {}) => setView('three', options?.immediate !== true),
     getState,
     destroy() {
       if (destroyed) return;

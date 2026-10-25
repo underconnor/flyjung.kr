@@ -42,7 +42,11 @@
 
 주 비교 화면은 별자리와 ASCII 두 안이다. 오리자리는 독립된 정규화 좌표·연결 데이터로 Canvas에 그린다. 프로젝트 이미지는 공통 데이터에서 수집·중복 제거하며 안전한 `/assets/` 이미지 경로와 실제 일반 파일인지 검사한다. 등록한 경력과 최근 공개 글도 공통 데이터에서 읽어, 새 콘텐츠가 생기면 빌드에 반영한다.
 
-후속 절충안 `/horizon/`, `/daybreak/`는 기존 시안을 수정하지 않고 독립 폴더에서 생성한다. 두 안만 `aircraft-v2/model.mjs`와 `sky-engine/viewer.mjs`를 사용한다. `createSkyViewer(host, options)`가 문자·입체 렌더링과 입력, 짧은 시점 전환을 관리하고, 페이지는 콘텐츠와 조작 버튼을 관리한다. 이전 `aircraft/model.mjs`와 그래픽 동작은 그대로 보존한다. 공용 모듈은 빌더의 명시적 목록으로만 복사하며 공개 빌드와는 분리한다.
+후속 절충안 `/horizon/`, `/daybreak/`는 독립 폴더에서 생성한다. 이 안들은 `aircraft-v2/model.mjs`와 `sky-engine/viewer.mjs`를 사용한다. `createSkyViewer(host, options)`가 문자·입체 렌더링과 입력, 짧은 시점 전환을 관리하고, 페이지는 콘텐츠와 조작 버튼을 관리한다. 이전 `aircraft/model.mjs`와 그래픽 동작은 그대로 보존한다. 공용 모듈은 빌더의 명시적 목록으로만 복사하며 공개 빌드와는 분리한다.
+
+추가 하늘 시안 `/atmosphere/`, `/descent/`, `/orbit/`와 `/flight-lab/`도 독립 폴더에서 같은 v2 모형과 렌더러를 사용한다. `setInputOptions`는 입력 조합을, `setOrientation`은 외부 스크롤 장면의 기준 방향을 제어한다. `preserveInput`은 장면의 기준 방향이 바뀌어도 사용자의 드래그 편차를 유지한다. 각 페이지가 생명주기와 버튼을 소유하고, 엔진이 포인터·스크롤·렌더 자원을 정리한다.
+
+모든 시안의 선택 메뉴는 `experiments/navigation.mjs`에서 생성하며 공용 CSS·JS를 빌더가 연결한다. 빌드 전에 메뉴의 각 경로와 실제 산출물 경로가 일치하는지 확인한다. 별자리와 ASCII도 같은 목록에 포함한다. 메인 페이지의 글 목록은 제거하고 Blog 링크로 이동한다. `commit-records.mjs`는 검토한 공개 저장소 커밋의 고정 스냅샷이며 브라우저에서 API를 호출하거나 비공개 Git 정보를 읽지 않는다.
 
 ## 레이아웃
 

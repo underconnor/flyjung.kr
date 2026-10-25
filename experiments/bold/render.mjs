@@ -1,3 +1,4 @@
+import { renderConceptNavigation } from '../navigation.mjs';
 import { escapeHTML as e } from '../../site/html.mjs';
 import { projects } from '../../site/data/projects.mjs';
 import * as cv from '../../site/data/cv.mjs';
@@ -55,15 +56,10 @@ export function renderConcept() {
 </head>
 <body>
 <a class="skip-link" href="#main">본문으로 건너뛰기</a>
-<aside class="comparison-bar" aria-label="시안 비교 도구">
-  <div class="comparison-inner content-width">
-    <p>별도 시안 <span>공개 사이트는 그대로입니다.</span></p>
-    <a href="http://127.0.0.1:4319/">기존 안 보기</a>
-  </div>
-</aside>
+${renderConceptNavigation('bold')}
 <header class="site-header content-width">
   <a class="wordmark" href="#top" aria-label="flyjung 첫 화면">flyjung<span aria-hidden="true">.</span></a>
-  <nav aria-label="시안 메뉴"><a href="#work">만든 것</a><a href="#about">활동</a><a href="#writing">기록</a></nav>
+  <nav aria-label="시안 메뉴"><a href="#work">만든 것</a><a href="#about">활동</a><a href="http://127.0.0.1:4319/blog/">Blog</a></nav>
 </header>
 <main id="main" tabindex="-1">
 <section class="hero content-width" id="top" aria-labelledby="slogan-title">
@@ -91,11 +87,8 @@ ${projects.map(projectSection).join('')}
     </div>
   </div>
 </section>
-<section class="writing-section content-width" id="writing" aria-labelledby="writing-title">
-  <h2 id="writing-title">만드는 일,<br>남겨 두는 일.</h2>
-  <div><p>프로젝트와 개발, 그 사이의 기록.</p><p>아직 공개한 글은 없습니다.</p><a class="text-link" href="https://flyjung.kr/blog/">블로그 보기 <span aria-hidden="true">↗</span></a></div>
-</section>
+
 </main>
-<footer class="site-footer content-width"><a href="#top" class="footer-name" aria-label="처음으로">flyjung.</a><div><p>Jiwon Jung</p><p>© 2026 flyjung.kr</p><a href="http://127.0.0.1:4319/">기존 안과 비교하기</a></div></footer>
+<footer class="site-footer content-width"><a href="#top" class="footer-name" aria-label="처음으로">flyjung.</a><div><p>Jiwon Jung</p><p>© 2026 flyjung.kr</p><a href="http://127.0.0.1:4319/">공개 사이트</a></div></footer>
 </body></html>`;
 }

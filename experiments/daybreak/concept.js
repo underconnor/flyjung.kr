@@ -1,4 +1,5 @@
 const reducedMotion=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const scrollBehavior=event=>event.detail===0||reducedMotion()?'instant':'smooth';
 const search=document.querySelector('#daybreak-search');
 const resetSearch=document.querySelector('#daybreak-search-reset');
 const rows=[...document.querySelectorAll('#daybreak-project-list > li')];
@@ -20,12 +21,12 @@ for(const link of document.querySelectorAll('[data-open-project]'))link.addEvent
   const target=document.getElementById(link.dataset.openProject);
   if(!target||target.tagName!=='DETAILS')return;
   event.preventDefault();target.open=true;setFragment(link.hash);
-  target.scrollIntoView({behavior:reducedMotion()?'instant':'smooth',block:'start'});
+  target.scrollIntoView({behavior:scrollBehavior(event),block:'start'});
   target.querySelector('summary').focus({preventScroll:true});
 });
 for(const link of document.querySelectorAll('.work-map a:not([data-open-project])'))link.addEventListener('click',event=>{
   const target=document.getElementById(link.hash.slice(1));if(!target)return;
-  event.preventDefault();setFragment(link.hash);target.setAttribute('tabindex','-1');target.focus({preventScroll:true});target.scrollIntoView({behavior:reducedMotion()?'instant':'smooth',block:'center'});
+  event.preventDefault();setFragment(link.hash);target.setAttribute('tabindex','-1');target.focus({preventScroll:true});target.scrollIntoView({behavior:scrollBehavior(event),block:'center'});
 });
 revealFragment();
 window.addEventListener('hashchange',revealFragment);
@@ -47,8 +48,8 @@ function syncViewer(){
 host.addEventListener('skyviewerchange',syncViewer);
 const observer=new MutationObserver(syncViewer);observer.observe(host,{attributes:true,attributeFilter:['data-ready','data-mode','data-view']});
 for(const button of modeButtons)button.addEventListener('click',()=>{viewer?.setMode(button.dataset.aircraftMode);syncViewer();});
-for(const button of viewButtons)button.addEventListener('click',()=>{viewer?.setView(button.dataset.aircraftView);syncViewer();});
-resetView.addEventListener('click',()=>{viewer?.reset();syncViewer();});
+for(const button of viewButtons)button.addEventListener('click',event=>{viewer?.setView(button.dataset.aircraftView,{immediate:event.detail===0});syncViewer();});
+resetView.addEventListener('click',event=>{viewer?.reset({immediate:event.detail===0});syncViewer();});
 try{
   const {createSkyViewer}=await import('/sky-engine/viewer.mjs');
   viewer=createSkyViewer(host,{mode:'ascii',interactive:true});syncViewer();
