@@ -65,29 +65,64 @@ document.querySelector('.skip-link').addEventListener('click', event => {
 
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const flight = document.querySelector('.flight-passage');
-const radarHeading = document.querySelector('.radar-heading');
+const journey = document.querySelector('.sky-journey');
+const radar = document.querySelector('.radar-stage');
 const radarField = document.querySelector('.radar-field');
 const host = document.querySelector('#trail-aircraft');
 const track = document.querySelector('.aircraft-track');
 function alignConstellationLines() {
   const bounds = radarField.getBoundingClientRect();
   if (!bounds.width || !bounds.height) return;
-  for (const type of ['project', 'activity']) {
-    const path = radarField.querySelector(`.${type}-line`);
-    const points = [...radarField.querySelectorAll(`.${type}-record-0 .chart-point, .${type}-record-1 .chart-point, .${type}-record-2 .chart-point`)].map(dot => {
-      const point = dot.getBoundingClientRect();
-      return [
-        ((point.left + point.width / 2 - bounds.left) / bounds.width * 100).toFixed(3),
-        ((point.top + point.height / 2 - bounds.top) / bounds.height * 100).toFixed(3),
-      ];
-    });
-    path?.setAttribute('d', points.map(([x,y], index) => `${index ? 'L' : 'M'} ${x} ${y}`).join(' '));
+  const center = dot => {
+    const point = dot.getBoundingClientRect();
+    return [
+      ((point.left + point.width / 2 - bounds.left) / bounds.width * 100).toFixed(3),
+      ((point.top + point.height / 2 - bounds.top) / bounds.height * 100).toFixed(3),
+    ];
+  };
+  const activityPoints = [...radarField.querySelectorAll('.activity-record-0 .chart-point, .activity-record-1 .chart-point, .activity-record-2 .chart-point')].map(center);
+  radarField.querySelector('.activity-line')?.setAttribute('d', activityPoints.map(([x,y], index) => `${index ? 'L' : 'M'} ${x} ${y}`).join(' '));
+  for (const line of radarField.querySelectorAll('.feature-line')) {
+    const [recordClass, featureClass] = line.dataset.connect.split(':');
+    const record = radarField.querySelector(`.${recordClass} .chart-point`);
+    const feature = radarField.querySelector(`.${featureClass}`);
+    if (!record || !feature) continue;
+    const [x1,y1] = center(record);
+    const [x2,y2] = center(feature);
+    line.setAttribute('d', `M ${x1} ${y1} L ${x2} ${y2}`);
   }
 }
 const lineResizeObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(alignConstellationLines) : null;
 lineResizeObserver?.observe(radarField);
 alignConstellationLines();
+document.fonts?.ready.then(alignConstellationLines);
 window.addEventListener('resize', alignConstellationLines, { passive: true });
+const chartRecords = [...radarField.querySelectorAll('.chart-record')];
+function highlightRecord(active) {
+  const projectClass = active?.classList.contains('project-record-0') ? 'project-record-0' : active?.classList.contains('project-record-1') ? 'project-record-1' : null;
+  const activityActive = Boolean(active?.classList.contains('activity-record-0') || active?.classList.contains('activity-record-1') || active?.classList.contains('activity-record-2'));
+  radarField.classList.toggle('has-highlight', Boolean(active));
+  for (const record of chartRecords) {
+    const related = record === active || activityActive && record.classList.contains('activity-record-0') || activityActive && record.classList.contains('activity-record-1') || activityActive && record.classList.contains('activity-record-2');
+    record.classList.toggle('is-related', related);
+    record.classList.toggle('is-dimmed', Boolean(active) && !related);
+  }
+  radarField.querySelector('.activity-line')?.classList.toggle('is-related', activityActive);
+  for (const line of radarField.querySelectorAll('.feature-line')) {
+    const related = Boolean(projectClass && line.dataset.connect.startsWith(`${projectClass}:`));
+    line.classList.toggle('is-related', related);
+    radarField.querySelector(`.${line.dataset.connect.split(':')[1]}`)?.classList.toggle('is-related', related);
+  }
+}
+function restoreFocusedRecord() {
+  highlightRecord(chartRecords.includes(document.activeElement) ? document.activeElement : null);
+}
+for (const record of chartRecords) {
+  record.addEventListener('mouseenter', () => highlightRecord(record));
+  record.addEventListener('mouseleave', restoreFocusedRecord);
+  record.addEventListener('focus', () => highlightRecord(record));
+  record.addEventListener('blur', () => highlightRecord(null));
+}
 let viewer;
 let frame = 0;
 let visible = true;
@@ -96,21 +131,23 @@ const clamp = value => Math.max(0, Math.min(1, value));
 function applyScroll() {
   frame = 0;
   if (destroyed || document.hidden || !visible || !viewer) return;
+  const radarBottom = radar.getBoundingClientRect().bottom;
   if (reducedMotion.matches) {
-    track.style.opacity = '1';
+    track.style.removeProperty('--plane-shift');
+    track.style.opacity = radarBottom > innerHeight * .4 ? '1' : '0';
     viewer.setOrientation({ azimuth: .52, elevation: .62, roll: 0, immediate: true });
     return;
   }
-  const flightTop = flight.getBoundingClientRect().top;
-  const progress = clamp((100 - flightTop) / Math.max(200, innerHeight * .32));
-  const radarTop = radarHeading.getBoundingClientRect().top;
-  // Finish the aircraft fade before the first plotted record can enter view.
-  const fade = clamp((radarTop - innerHeight) / 180);
+  const darkTravel = flight.offsetHeight + radar.offsetHeight - innerHeight * .45;
+  const progress = clamp((100 - journey.getBoundingClientRect().top) / Math.max(300, darkTravel));
+  // Keep the 787 beside every constellation; let it dissolve in the meteor sky.
+  const fade = clamp((radarBottom + innerHeight * .15) / (innerHeight * .7));
+  track.style.setProperty('--plane-shift', `${Math.round(progress * Math.min(210, innerHeight * .24))}px`);
   track.style.opacity = String(fade);
   viewer.setOrientation({
-    azimuth: .52 + progress * .67,
-    elevation: .62 - progress * .32,
-    roll: Math.sin(progress * Math.PI) * .18,
+    azimuth: .52 + progress * .72,
+    elevation: .62 - progress * .3,
+    roll: Math.sin(progress * Math.PI) * .16,
     immediate: true,
   });
 }
@@ -124,12 +161,12 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden && frame) { cancelAnimationFrame(frame); frame = 0; }
   else schedule();
 });
-const flightObserver = new IntersectionObserver(entries => {
+const journeyObserver = new IntersectionObserver(entries => {
   visible = entries[0].isIntersecting;
   if (!visible && frame) { cancelAnimationFrame(frame); frame = 0; }
   else schedule();
 }, { rootMargin: '180px' });
-flightObserver.observe(flight);
+journeyObserver.observe(journey);
 
 if (!reducedMotion.matches) document.body.classList.add('line-reveal');
 const chartObserver = new IntersectionObserver(entries => {
@@ -154,7 +191,7 @@ try {
 window.addEventListener('pagehide', event => {
   if (event.persisted) return;
   destroyed = true;
-  flightObserver.disconnect();
+  journeyObserver.disconnect();
   chartObserver.disconnect();
   lineResizeObserver?.disconnect();
   if (frame) cancelAnimationFrame(frame);

@@ -9,7 +9,7 @@
 @media(prefers-reduced-motion:reduce){:root{scroll-behavior:auto}button:active{transform:none}}
 
 
-/* Flight, constellation, and public commit trails are separate scroll stages. */
+/* The aircraft descends beside constellations anchored in the same dark sky. */
 :root{background:#090f35;color:#f2f6ff}
 .sky-page{min-height:100vh;background:#090f35}
 .sky-page>main{position:relative}
@@ -18,7 +18,8 @@
 .flight-passage{position:relative;z-index:1;height:calc(112svh - 100px);min-height:740px;display:flow-root}
 .sky-intro{position:relative;z-index:2;display:block;min-height:0;padding-top:65px;width:50%}
 .identity{max-width:520px}
-.aircraft-track{position:absolute;top:99px;left:43%;width:57%;height:345px;color:#d8e7ff;pointer-events:none;will-change:opacity;z-index:1}
+.aircraft-overlay{position:absolute;inset:0;z-index:4;pointer-events:none}
+.aircraft-track{position:sticky;top:clamp(105px,13vh,150px);width:44%;height:345px;margin-left:55%;color:#d8e7ff;transform:translateY(var(--plane-shift,0px));will-change:transform,opacity}
 .aircraft-stage{width:100%;height:345px;overflow:hidden;touch-action:auto}
 .aircraft-stage:focus-visible{outline:none}
 .aircraft-stage pre{margin:0}
@@ -28,25 +29,30 @@
 .chart-dust{position:absolute;inset:0;width:100%;height:100%;fill:#c8dcff;opacity:.32;pointer-events:none}
 .radar-content{position:relative;padding-top:84px;padding-bottom:115px}
 .radar-heading h2{font-size:29px;line-height:1.4;font-weight:500;letter-spacing:-1px}
-.radar-field{position:relative;width:min(860px,100%);height:760px;margin:52px auto 0}
+.radar-field{position:relative;width:min(610px,53%);height:760px;margin:52px 0 0}
 .constellation-lines{position:absolute;inset:0;width:100%;height:100%;overflow:visible;z-index:1;pointer-events:none}
 .category-line{fill:none;stroke:#a9c8f1;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;opacity:.45;vector-effect:non-scaling-stroke}
 .category-line.activity-line{stroke:#bdcede;opacity:.42}
+.category-line.activity-line.is-related{stroke:#e7f0ff;opacity:.8}
+.feature-line{fill:none;stroke:#b2c9f1;stroke-width:1;stroke-linecap:round;opacity:.39;vector-effect:non-scaling-stroke;transition:opacity 180ms ease,stroke 180ms ease}
+.feature-line.is-related{opacity:.82;stroke:#e7f0ff}
 .line-reveal .category-line{stroke-dasharray:1600;stroke-dashoffset:1600;transition:stroke-dashoffset 1150ms cubic-bezier(.22,1,.36,1)}
 .line-reveal .radar-field.is-visible .category-line{stroke-dashoffset:0}
-.chart-record{position:absolute;z-index:4;display:flex;align-items:flex-start;min-height:48px;max-width:270px;padding:5px 0;line-height:1.5;color:#f3f7ff}
+.chart-record{position:absolute;z-index:4;display:flex;align-items:flex-start;min-height:48px;max-width:270px;padding:5px 0;line-height:1.5;color:#f3f7ff;transition:opacity 180ms ease}
 .chart-point{width:11px;height:11px;flex:none;border-radius:50%;margin-top:3px;background:#f8fbff;box-shadow:0 0 0 3px #9dbdff32,0 0 19px #c3dbffa3;transition:transform 180ms ease,box-shadow 180ms ease}
 .project-record-0 .chart-point,.activity-record-0 .chart-point{width:13px;height:13px}
-.chart-leader{width:22px;height:1px;flex:none;margin:8px 8px 0 7px;background:currentColor;opacity:.75;position:relative}
-.chart-leader::after{content:"";position:absolute;right:0;top:-3px;height:7px;border-right:1px solid currentColor}
+.chart-leader{display:none}
+.chart-record{gap:9px}
+.chart-feature{position:absolute;z-index:3;width:6px;height:6px;border-radius:50%;background:#d9e8ff;box-shadow:0 0 9px #b9d3ff94;pointer-events:none;transition:box-shadow 180ms ease,transform 180ms ease}
+.chart-feature.is-related{transform:scale(1.25);box-shadow:0 0 14px #dbeaffd1}
+.feature-shinsungin-meals{left:34%;top:12%}.feature-shinsungin-auth{left:28%;top:28%}
+.feature-momu-mission{left:74%;top:24%}.feature-momu-feed{left:80%;top:42%}
 .chart-copy{display:block;max-width:195px;min-width:0;text-shadow:0 1px 6px #080d2c}
 .chart-copy strong{display:block;font-size:15px;line-height:1.5;font-weight:500;letter-spacing:-.25px}
 .chart-detail{display:none;font-size:10px;line-height:1.65;font-weight:400;white-space:nowrap;color:#d2e2f6}
-.project-record-0{right:64%;top:19%;flex-direction:row-reverse}.project-record-1{left:66%;top:37%}
-.activity-record-0{left:55%;top:54%}.activity-record-1{right:69%;top:71%;flex-direction:row-reverse}.activity-record-2{left:65%;top:84%}
-.project-record-0 .chart-copy,.activity-record-1 .chart-copy{text-align:right}
-.project-record-0 .chart-leader,.activity-record-1 .chart-leader{margin-left:8px;margin-right:7px}
-.project-record-0 .chart-leader::after,.activity-record-1 .chart-leader::after{right:auto;left:0}
+.project-record-0{left:14%;top:16%}.project-record-1{left:58%;top:34%}
+.activity-record-0{left:39%;top:55%}.activity-record-1{left:11%;top:70%}.activity-record-2{left:52%;top:85%}
+.chart-record.is-dimmed{opacity:.62}
 .chart-record:is(:hover,:focus-visible,:active) .chart-point{transform:scale(1.35);box-shadow:0 0 0 7px #b9d1ff42,0 0 27px #e5f1ff}
 .chart-record:is(:hover,:focus-visible,:active) .chart-copy strong{text-decoration:underline;text-underline-offset:4px}
 .chart-record:focus-visible{outline:none}
@@ -66,41 +72,46 @@
 .ground{background:#eef3f8;color:var(--ink);color-scheme:light}
 .ground .site-footer .wordmark span{color:#476699}
 @media(hover:hover) and (pointer:fine){.meteor:hover .meteor-copy strong{text-decoration:underline;text-underline-offset:5px}}
-@media(max-width:1100px){.sky-intro{width:54%}.aircraft-track{left:45%;width:55%}.chart-copy{max-width:175px}}
+@media(max-width:1100px){.sky-intro{width:54%}.aircraft-track{width:47%;margin-left:52%}.radar-field{width:52%}.chart-copy{max-width:150px}.chart-copy strong{font-size:14px}}
 @media(max-width:800px){
  .flight-passage{height:calc(113svh - 82px);min-height:700px}
  .sky-intro{padding-top:40px;width:65%}
- .aircraft-track{top:300px;left:20%;width:80%;height:265px}
+ .aircraft-track{top:clamp(205px,27vh,265px);width:54%;height:265px;margin-left:45%}
  .aircraft-stage{height:265px}
  .radar-stage{min-height:980px}
  .radar-content{padding-top:72px;padding-bottom:100px}
- .radar-field{height:700px;margin-top:45px}
- .chart-copy{max-width:160px}
- .project-record-0{right:67%;top:15%}.project-record-1{left:60%;top:33%}
- .activity-record-0{left:56%;top:51%}.activity-record-1{right:67%;top:68%}.activity-record-2{left:63%;top:83%}
+ .radar-field{width:52%;height:700px;margin-top:45px}
+ .chart-copy{max-width:120px}
+ .project-record-0{left:7%;top:15%}.project-record-1{left:42%;top:33%}
+ .activity-record-0{left:35%;top:53%}.activity-record-1{left:5%;top:69%}.activity-record-2{left:38%;top:84%}
+ .feature-shinsungin-meals{left:24%;top:10%}.feature-shinsungin-auth{left:21%;top:26%}
+ .feature-momu-mission{left:68%;top:26%}.feature-momu-feed{left:77%;top:42%}
  .meteor-1{right:2%}
 }
 @media(max-width:600px){
  .site-header{min-height:76px}.content-width{width:calc(100% - 40px)}
  .flight-passage{height:calc(118svh - 76px);min-height:700px}
  .sky-intro{width:100%;padding-top:27px}
- .aircraft-track{top:310px;left:0;width:100%;height:235px}
- .aircraft-stage{height:235px}.loading{padding-top:95px}
+ .aircraft-track{top:clamp(245px,35vh,310px);width:58%;height:215px;margin-left:41%}
+ .aircraft-stage{height:215px}.loading{padding-top:85px}
  .radar-stage{min-height:900px}
  .radar-content{padding-top:65px;padding-bottom:96px}
  .radar-heading h2{font-size:25px}
- .radar-field{height:620px;margin-top:66px}
+ .radar-field{width:100%;height:650px;margin-top:66px}
  .chart-dust{opacity:.24}
  .chart-record{max-width:190px}.chart-point{width:9px;height:9px}.project-record-0 .chart-point,.activity-record-0 .chart-point{width:11px;height:11px}
- .chart-leader{width:16px;margin-left:5px;margin-right:5px}
- .chart-copy{max-width:130px}.chart-copy strong{font-size:12px}
- .project-record-0{right:68%;top:13%}.project-record-1{left:53%;top:31%}
- .activity-record-0{left:54%;top:49%}.activity-record-1{right:68%;top:68%}.activity-record-2{left:56%;top:85%}
+ .chart-record{max-width:155px;flex-direction:row-reverse;text-align:right;gap:7px}
+ .chart-copy{max-width:125px}.chart-copy strong{font-size:11px}
+ .chart-feature{width:5px;height:5px}
+ .project-record-0{left:auto;right:64%;top:14%}.project-record-1{left:auto;right:54%;top:32%}
+ .activity-record-0{left:auto;right:67%;top:53%}.activity-record-1{left:auto;right:52%;top:69%}.activity-record-2{left:auto;right:58%;top:85%}
+ .feature-shinsungin-meals{left:25%;top:8%}.feature-shinsungin-auth{left:30%;top:23%}
+ .feature-momu-mission{left:28%;top:26%}.feature-momu-feed{left:34%;top:42%}
  .meteor-stage,.meteor-content{min-height:750px}
  .meteor-content{padding-top:56px}.meteor-heading h2{font-size:20px}
  .meteor-field{height:600px}
  .meteor{max-width:300px;gap:10px}.meteor-0{left:0;top:8%}.meteor-1{right:0;top:38%}.meteor-2{left:1%;top:72%}
  .meteor-streak{width:46px}.meteor-copy strong{font-size:10px}.meteor-copy small{font-size:9px}
 }
-@media(max-width:350px){.content-width{width:calc(100% - 36px)}.chart-copy{max-width:105px}.chart-leader{width:12px}.chart-copy strong{font-size:11px}}
-@media(prefers-reduced-motion:reduce){:root{scroll-behavior:auto}.aircraft-track{will-change:auto}.category-line{stroke-dasharray:none;stroke-dashoffset:0;transition:none}.chart-point{transition:none}}
+@media(max-width:350px){.content-width{width:calc(100% - 36px)}.chart-copy{max-width:102px}.chart-copy strong{font-size:10px}.aircraft-track{width:57%;margin-left:42%}}
+@media(prefers-reduced-motion:reduce){:root{scroll-behavior:auto}.aircraft-track{will-change:auto;transform:none}.category-line{stroke-dasharray:none;stroke-dashoffset:0;transition:none}.chart-record,.chart-point,.chart-feature,.feature-line{transition:none}}
