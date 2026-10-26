@@ -64,12 +64,15 @@ document.querySelector('.skip-link').addEventListener('click', event => {
 });
 
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const finePointer = matchMedia('(hover: hover) and (pointer: fine)');
 const flight = document.querySelector('.flight-passage');
 const journey = document.querySelector('.sky-journey');
 const radar = document.querySelector('.radar-stage');
 const radarField = document.querySelector('.radar-field');
 const host = document.querySelector('#trail-aircraft');
 const track = document.querySelector('.aircraft-track');
+const depthLayers = [...journey.querySelectorAll('.sky-depth')];
+const responsiveStars = [...radarField.querySelectorAll('.chart-point, .chart-feature, .chart-decor')];
 function alignConstellationLines() {
   const bounds = radarField.getBoundingClientRect();
   if (!bounds.width || !bounds.height) return;
@@ -82,6 +85,9 @@ function alignConstellationLines() {
   };
   const activityPoints = [...radarField.querySelectorAll('.activity-record-0 .chart-point, .activity-record-1 .chart-point, .activity-record-2 .chart-point')].map(center);
   radarField.querySelector('.activity-line')?.setAttribute('d', activityPoints.map(([x,y], index) => `${index ? 'L' : 'M'} ${x} ${y}`).join(' '));
+  const decorPoints = [...radarField.querySelectorAll('.chart-decor')].map(center);
+  const bowl = decorPoints[3];
+  radarField.querySelector('.decor-line')?.setAttribute('d', `${decorPoints.map(([x,y], index) => `${index ? 'L' : 'M'} ${x} ${y}`).join(' ')} L ${bowl[0]} ${bowl[1]}`);
   for (const line of radarField.querySelectorAll('.feature-line')) {
     const [recordClass, featureClass] = line.dataset.connect.split(':');
     const record = radarField.querySelector(`.${recordClass} .chart-point`);
@@ -123,6 +129,70 @@ for (const record of chartRecords) {
   record.addEventListener('focus', () => highlightRecord(record));
   record.addEventListener('blur', () => highlightRecord(null));
 }
+let pointerFrame = 0;
+let pointerX = 0;
+let pointerY = 0;
+function resetPointerSky() {
+  if (pointerFrame) cancelAnimationFrame(pointerFrame);
+  pointerFrame = 0;
+  for (const layer of depthLayers) layer.style.removeProperty('transform');
+  for (const star of responsiveStars) {
+    star.style.removeProperty('--star-glow');
+    star.style.removeProperty('--star-alpha');
+  }
+}
+function paintPointerSky() {
+  pointerFrame = 0;
+  if (reducedMotion.matches || !finePointer.matches) return resetPointerSky();
+  const x = Math.max(-1, Math.min(1, (pointerX - innerWidth / 2) / (innerWidth / 2)));
+  const y = Math.max(-1, Math.min(1, (pointerY - innerHeight / 2) / (innerHeight / 2)));
+  for (const [index, layer] of depthLayers.entries()) {
+    const distance = [2, 5, 9][index];
+    layer.style.transform = `translate(${(x * distance).toFixed(2)}px, ${(y * distance).toFixed(2)}px)`;
+  }
+  for (const star of responsiveStars) {
+    const bounds = star.getBoundingClientRect();
+    const distance = Math.hypot(bounds.left + bounds.width / 2 - pointerX, bounds.top + bounds.height / 2 - pointerY);
+    const influence = Math.max(0, 1 - distance / 260) ** 2;
+    if (influence < .01) {
+      star.style.removeProperty('--star-glow');
+      star.style.removeProperty('--star-alpha');
+      continue;
+    }
+    star.style.setProperty('--star-glow', `${Math.round(13 + influence * 15)}px`);
+    star.style.setProperty('--star-alpha', (0.56 + influence * .34).toFixed(2));
+  }
+}
+journey.addEventListener('pointermove', event => {
+  if (!finePointer.matches || reducedMotion.matches) return;
+  pointerX = event.clientX;
+  pointerY = event.clientY;
+  if (!pointerFrame) pointerFrame = requestAnimationFrame(paintPointerSky);
+}, { passive: true });
+journey.addEventListener('pointerleave', resetPointerSky);
+reducedMotion.addEventListener('change', resetPointerSky);
+finePointer.addEventListener('change', resetPointerSky);
+
+const meteorStage = document.querySelector('.meteor-stage');
+const meteorLinks = [...meteorStage.querySelectorAll('.meteor')];
+const meteorObserver = new IntersectionObserver(entries => {
+  for (const entry of entries) if (entry.isIntersecting) {
+    entry.target.classList.add('is-fallen');
+    meteorObserver.unobserve(entry.target);
+  }
+}, { threshold: .25, rootMargin: '0px 0px -8% 0px' });
+meteorStage.classList.add('meteors-ready');
+for (const link of meteorLinks) {
+  if (reducedMotion.matches) link.classList.add('is-fallen', 'meteor-no-motion');
+  else meteorObserver.observe(link);
+}
+reducedMotion.addEventListener('change', () => {
+  if (!reducedMotion.matches) return;
+  for (const link of meteorLinks) {
+    link.classList.add('is-fallen', 'meteor-no-motion');
+    meteorObserver.unobserve(link);
+  }
+});
 let viewer;
 let frame = 0;
 let visible = true;
@@ -135,18 +205,19 @@ function applyScroll() {
   if (reducedMotion.matches) {
     track.style.removeProperty('--plane-shift');
     track.style.opacity = radarBottom > innerHeight * .4 ? '1' : '0';
-    viewer.setOrientation({ azimuth: .52, elevation: .62, roll: 0, immediate: true });
+    viewer.setOrientation({ azimuth: .42, elevation: .48, roll: 0, immediate: true });
     return;
   }
   const darkTravel = flight.offsetHeight + radar.offsetHeight - innerHeight * .45;
   const progress = clamp((100 - journey.getBoundingClientRect().top) / Math.max(300, darkTravel));
   // Keep the 787 beside every constellation; let it dissolve in the meteor sky.
-  const fade = clamp((radarBottom + innerHeight * .15) / (innerHeight * .7));
-  track.style.setProperty('--plane-shift', `${Math.round(progress * Math.min(210, innerHeight * .24))}px`);
+  const fade = clamp((radarBottom - innerHeight * .52) / (innerHeight * .43));
+  const descent = innerWidth <= 600 ? Math.min(110, innerHeight * .14) : innerWidth <= 800 ? Math.min(150, innerHeight * .17) : Math.min(210, innerHeight * .24);
+  track.style.setProperty('--plane-shift', `${Math.round(progress * descent)}px`);
   track.style.opacity = String(fade);
   viewer.setOrientation({
-    azimuth: .52 + progress * .72,
-    elevation: .62 - progress * .3,
+    azimuth: .42 + progress * .76,
+    elevation: .48 - progress * .2,
     roll: Math.sin(progress * Math.PI) * .16,
     immediate: true,
   });
@@ -193,8 +264,10 @@ window.addEventListener('pagehide', event => {
   destroyed = true;
   journeyObserver.disconnect();
   chartObserver.disconnect();
+  meteorObserver.disconnect();
   lineResizeObserver?.disconnect();
   if (frame) cancelAnimationFrame(frame);
+  resetPointerSky();
   viewer?.destroy();
 });
 window.addEventListener('pageshow', event => { if (event.persisted) schedule(); });

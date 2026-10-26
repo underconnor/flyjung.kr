@@ -6,12 +6,35 @@ import { commitRecords } from '../commit-records.mjs';
 
 const publicSite = 'http://127.0.0.1:4319';
 const projectTitle = project => project.id === 'momu' ? '모무' : project.title;
-const skyDots = Array.from({length:78}, (_, index) => {
-  const x = (index * 617 + 31) % 1200;
-  const y = (index * 359 + 73) % 1570;
-  const radius = index % 11 === 0 ? 1.5 : index % 3 === 0 ? 1 : .65;
-  return `<circle cx="${x}" cy="${y}" r="${radius}"/>`;
-}).join('');
+const skyRandom = seed => {
+  let state = seed;
+  return () => {
+    state ^= state << 13;
+    state ^= state >>> 17;
+    state ^= state << 5;
+    return (state >>> 0) / 4294967296;
+  };
+};
+const skyDepth = (className, count, seed, minRadius, radiusRange, minOpacity, opacityRange) => {
+  const random = skyRandom(seed);
+  const stars = Array.from({length:count}, (_, index) => {
+    const x = (16 + random() * 1168).toFixed(2);
+    const y = (18 + random() * 1780).toFixed(2);
+    const radius = (minRadius + random() * radiusRange).toFixed(2);
+    const opacity = (minOpacity + random() * opacityRange).toFixed(2);
+    const halo = className === 'sky-depth-near' && index < 4
+      ? `<circle class="sky-halo" cx="${x}" cy="${y}" r="${(Number(radius) * 4.2).toFixed(2)}" opacity=".13"/>`
+      : '';
+    return `${halo}<circle cx="${x}" cy="${y}" r="${radius}" opacity="${opacity}"/>`;
+  }).join('');
+  return `<g class="sky-depth ${className}">${stars}</g>`;
+};
+const skyField = [
+  skyDepth('sky-depth-far', 100, 0x2478a1, .35, .42, .18, .23),
+  skyDepth('sky-depth-mid', 45, 0x787491, .65, .55, .34, .24),
+  skyDepth('sky-depth-near', 15, 0x157038, 1.2, .9, .6, .3),
+].join('');
+const decorativeStars = Array.from({length:7}, (_, index) => `<span class="chart-decor decor-${index}" aria-hidden="true"></span>`).join('');
 const cvRows = (rows, kind) => `<ul class="cv-rows">${rows.map((row,index)=>`<li id="${kind}-${index}" tabindex="-1"><div><h3>${e(row.organization)}</h3><p>${e(row.role || '')}</p></div><span>${e(row.period)}</span></li>`).join('')}</ul>`;
 const projectDetail = project => `<details class="project-row" id="detail-${e(project.id)}" data-project data-search="${e(`${project.title} ${project.role} ${project.summary}`)}"><summary><span class="row-name">${e(projectTitle(project))}</span><span class="row-description">${e(project.summary)}</span><span class="row-role">${e(project.role)}</span><span class="row-toggle" aria-hidden="true">+</span></summary><div class="project-detail">${project.details.map(detail=>`<div><h4>${e(detail.label)}</h4>${detail.paragraphs.map(paragraph=>`<p>${e(paragraph)}</p>`).join('')}</div>`).join('')}<a href="${publicSite}/projects/#${e(project.id)}">프로젝트 화면 보기</a></div></details>`;
 const compactPeriod = period => period.replace(/\s*—\s*/g, '–');
@@ -35,9 +58,9 @@ export function renderConcept() {
   return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#090f35"><meta name="description" content="정지원의 프로젝트와 활동을 별자리로 따라가는 밤하늘과 787."><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'"><title>정지원 · 별의 항로</title><link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/sky-trail.css"><script type="module" src="/sky-trail.js"></script></head><body>
 <a class="skip-link" href="#main">본문으로 건너뛰기</a>${renderConceptNavigation('sky-trail')}
 <div class="sky-page" id="top"><header class="site-header content-width"><a class="wordmark" href="#top">flyjung<span aria-hidden="true">.</span></a><nav aria-label="주 메뉴"><a href="#cv">CV</a><a href="#projects">Projects</a><a href="${publicSite}/blog/">Blog</a></nav></header>
-<main id="main" tabindex="-1"><div class="sky-journey"><svg class="sky-dots" viewBox="0 0 1200 1570" preserveAspectRatio="xMidYMin slice" aria-hidden="true">${skyDots}</svg><div class="aircraft-overlay"><div class="aircraft-track" role="img" aria-label="밤하늘을 따라 내려가는 Boeing 787 문자 비행기"><div class="aircraft-stage" id="trail-aircraft" aria-hidden="true"><p class="loading">787</p></div></div></div>
+<main id="main" tabindex="-1"><div class="sky-journey"><svg class="sky-dots" viewBox="0 0 1200 1800" preserveAspectRatio="xMidYMin slice" aria-hidden="true" focusable="false">${skyField}</svg><div class="aircraft-overlay"><div class="aircraft-track" role="img" aria-label="밤하늘을 따라 내려가는 Boeing 787 문자 비행기"><div class="aircraft-stage" id="trail-aircraft" aria-hidden="true"><p class="loading">787</p></div></div></div>
 <section class="flight-passage content-width" aria-label="밤하늘을 지나는 Boeing 787"><div class="sky-intro" aria-labelledby="identity-title"><div class="identity"><p class="hello">안녕하세요,</p><h1 id="identity-title">정지원<span lang="en">Jiwon Jung</span></h1><p class="signature" lang="en">${e(signature)}</p><p class="intro-copy">숭실대학교에서 공부하며<br>서비스를 만들고 기획합니다.</p><a class="read-cv" href="#cv">이력부터 읽기 <span aria-hidden="true">↓</span></a></div></div></section>
-<section class="radar-stage" aria-labelledby="radar-title"><svg class="chart-dust" viewBox="0 0 1200 1570" preserveAspectRatio="xMidYMin slice" aria-hidden="true">${skyDots}</svg><div class="content-width radar-content"><div class="radar-heading"><h2 id="radar-title">기록의 별자리</h2></div><div class="radar-field" aria-label="실제 프로젝트 두 개와 관련 기능, 활동 세 개를 각각 이은 별자리"><svg class="constellation-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="category-line activity-line"/><path class="category-line feature-line" data-connect="project-record-0:feature-shinsungin-meals"/><path class="category-line feature-line" data-connect="project-record-0:feature-shinsungin-auth"/><path class="category-line feature-line" data-connect="project-record-1:feature-momu-mission"/><path class="category-line feature-line" data-connect="project-record-1:feature-momu-feed"/></svg>${projectChart}${activityChart}<span class="chart-feature feature-shinsungin-meals" aria-hidden="true"></span><span class="chart-feature feature-shinsungin-auth" aria-hidden="true"></span><span class="chart-feature feature-momu-mission" aria-hidden="true"></span><span class="chart-feature feature-momu-feed" aria-hidden="true"></span></div></div></section>
+<section class="radar-stage" aria-labelledby="radar-title"><h2 id="radar-title" class="sr-only">프로젝트와 활동의 별자리</h2><div class="radar-field" aria-label="신성인과 모무의 기능 별자리, 활동의 별자리"><svg class="constellation-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="category-line decor-line"/><path class="category-line activity-line"/><path class="category-line feature-line" data-connect="project-record-0:feature-shinsungin-meals"/><path class="category-line feature-line" data-connect="project-record-0:feature-shinsungin-auth"/><path class="category-line feature-line" data-connect="project-record-1:feature-momu-mission"/><path class="category-line feature-line" data-connect="project-record-1:feature-momu-feed"/></svg>${projectChart}${activityChart}<span class="chart-feature feature-shinsungin-meals" aria-hidden="true"></span><span class="chart-feature feature-shinsungin-auth" aria-hidden="true"></span><span class="chart-feature feature-momu-mission" aria-hidden="true"></span><span class="chart-feature feature-momu-feed" aria-hidden="true"></span>${decorativeStars}</div></section>
 <section class="meteor-stage" aria-labelledby="meteor-title"><div class="content-width meteor-content"><div class="meteor-heading"><h2 id="meteor-title">지나온 기록</h2></div><div class="meteor-field">${meteors}</div></div></section></div>
 <div class="ground"><section class="cv-section content-width" id="cv" aria-labelledby="cv-title"><div class="section-title"><h2 id="cv-title">CV</h2><p>${e(cvIdentity)}</p><a href="${publicSite}/cv/">전체 이력 보기</a></div><div class="cv-content">${careers.length?`<div class="cv-group"><h3 class="group-title">경력</h3>${cvRows(careers,'career')}</div>`:''}<div class="cv-group"><h3 class="group-title">활동</h3>${cvRows(activities,'activity')}</div><div class="cv-small"><div><h3 class="group-title">학력</h3>${education.map(entry=>`<p>${e(entry.organization)}<span>${e(entry.period)}</span></p>`).join('')}</div><div><h3 class="group-title">수상</h3>${awards.map(award=>`<p>${e(award.title)}<span>${e(award.distinction)}</span></p>`).join('')}</div></div></div></section>
 <section class="featured-section content-width" id="projects" aria-labelledby="projects-title"><div class="section-top"><h2 id="projects-title">먼저 볼 프로젝트</h2><a href="#all-projects">전체 목록</a></div><div class="featured-projects">${pinnedProjects.slice(0,2).map(project=>`<article class="featured-project"><div><p class="project-role">${e(project.role)}</p><h3>${e(projectTitle(project))}</h3><p class="project-summary">${e(project.summary)}</p><a href="#detail-${e(project.id)}" data-open-project="detail-${e(project.id)}">만든 과정 보기</a></div><figure><img src="${e(project.images[0].src)}" width="${project.images[0].width}" height="${project.images[0].height}" alt="${e(project.images[0].alt)}" loading="lazy" decoding="async"></figure></article>`).join('')}</div></section>
