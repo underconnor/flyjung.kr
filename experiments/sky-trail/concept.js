@@ -212,7 +212,7 @@ function applyScroll() {
   const progress = clamp((100 - journey.getBoundingClientRect().top) / Math.max(300, darkTravel));
   // Keep the 787 beside every constellation; let it dissolve in the meteor sky.
   const fade = clamp((radarBottom - innerHeight * .52) / (innerHeight * .43));
-  const descent = innerWidth <= 600 ? Math.min(110, innerHeight * .14) : innerWidth <= 800 ? Math.min(150, innerHeight * .17) : Math.min(210, innerHeight * .24);
+  const descent = innerWidth <= 600 ? Math.min(185, innerHeight * .25) : innerWidth <= 800 ? Math.min(150, innerHeight * .17) : Math.min(210, innerHeight * .24);
   track.style.setProperty('--plane-shift', `${Math.round(progress * descent)}px`);
   track.style.opacity = String(fade);
   viewer.setOrientation({
