@@ -83,7 +83,7 @@ function alignConstellationLines() {
       ((point.top + point.height / 2 - bounds.top) / bounds.height * 100).toFixed(3),
     ];
   };
-  const activityPoints = [...radarField.querySelectorAll('.activity-record-0 .chart-point, .activity-record-1 .chart-point, .activity-record-2 .chart-point')].map(center);
+  const activityPoints = [...radarField.querySelectorAll('.activity-record-1 .chart-point, .activity-record-2 .chart-point')].map(center);
   radarField.querySelector('.activity-line')?.setAttribute('d', activityPoints.map(([x,y], index) => `${index ? 'L' : 'M'} ${x} ${y}`).join(' '));
   const decorPoints = [...radarField.querySelectorAll('.chart-decor')].map(center);
   const bowl = decorPoints[3];
@@ -106,10 +106,10 @@ window.addEventListener('resize', alignConstellationLines, { passive: true });
 const chartRecords = [...radarField.querySelectorAll('.chart-record')];
 function highlightRecord(active) {
   const projectClass = active?.classList.contains('project-record-0') ? 'project-record-0' : active?.classList.contains('project-record-1') ? 'project-record-1' : null;
-  const activityActive = Boolean(active?.classList.contains('activity-record-0') || active?.classList.contains('activity-record-1') || active?.classList.contains('activity-record-2'));
+  const activityActive = Boolean(active?.classList.contains('activity-record-1') || active?.classList.contains('activity-record-2'));
   radarField.classList.toggle('has-highlight', Boolean(active));
   for (const record of chartRecords) {
-    const related = record === active || activityActive && record.classList.contains('activity-record-0') || activityActive && record.classList.contains('activity-record-1') || activityActive && record.classList.contains('activity-record-2');
+    const related = record === active || activityActive && (record.classList.contains('activity-record-1') || record.classList.contains('activity-record-2'));
     record.classList.toggle('is-related', related);
     record.classList.toggle('is-dimmed', Boolean(active) && !related);
   }
@@ -147,7 +147,7 @@ function paintPointerSky() {
   const x = Math.max(-1, Math.min(1, (pointerX - innerWidth / 2) / (innerWidth / 2)));
   const y = Math.max(-1, Math.min(1, (pointerY - innerHeight / 2) / (innerHeight / 2)));
   for (const [index, layer] of depthLayers.entries()) {
-    const distance = [2, 5, 9][index];
+    const distance = [0.5, 1, 2][index];
     layer.style.transform = `translate(${(x * distance).toFixed(2)}px, ${(y * distance).toFixed(2)}px)`;
   }
   for (const star of responsiveStars) {
