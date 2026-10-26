@@ -72,7 +72,7 @@ const radarField = document.querySelector('.radar-field');
 const host = document.querySelector('#trail-aircraft');
 const track = document.querySelector('.aircraft-track');
 const depthLayers = [...journey.querySelectorAll('.sky-depth')];
-const responsiveStars = [...radarField.querySelectorAll('.chart-point, .chart-feature, .chart-decor')];
+const responsiveStars = [...radarField.querySelectorAll('.chart-point, .path-star, .chart-decor')];
 function alignConstellationLines() {
   const bounds = radarField.getBoundingClientRect();
   if (!bounds.width || !bounds.height) return;
@@ -83,20 +83,15 @@ function alignConstellationLines() {
       ((point.top + point.height / 2 - bounds.top) / bounds.height * 100).toFixed(3),
     ];
   };
-  const activityPoints = [...radarField.querySelectorAll('.activity-record-1 .chart-point, .activity-record-2 .chart-point')].map(center);
-  radarField.querySelector('.activity-line')?.setAttribute('d', activityPoints.map(([x,y], index) => `${index ? 'L' : 'M'} ${x} ${y}`).join(' '));
+  const drawRoute = (line, selectors) => {
+    const points = selectors.map(selector => radarField.querySelector(selector)).filter(Boolean).map(center);
+    radarField.querySelector(line)?.setAttribute('d', points.map(([x,y], index) => `${index ? 'L' : 'M'} ${x} ${y}`).join(' '));
+  };
+  drawRoute('.project-line', ['.project-record-0 .chart-point', '.project-waypoint-0', '.project-waypoint-1', '.project-record-1 .chart-point']);
+  drawRoute('.activity-line', ['.activity-record-0 .chart-point', '.activity-waypoint-0', '.activity-waypoint-1', '.activity-record-1 .chart-point', '.activity-record-2 .chart-point']);
   const decorPoints = [...radarField.querySelectorAll('.chart-decor')].map(center);
   const bowl = decorPoints[3];
   radarField.querySelector('.decor-line')?.setAttribute('d', `${decorPoints.map(([x,y], index) => `${index ? 'L' : 'M'} ${x} ${y}`).join(' ')} L ${bowl[0]} ${bowl[1]}`);
-  for (const line of radarField.querySelectorAll('.feature-line')) {
-    const [recordClass, featureClass] = line.dataset.connect.split(':');
-    const record = radarField.querySelector(`.${recordClass} .chart-point`);
-    const feature = radarField.querySelector(`.${featureClass}`);
-    if (!record || !feature) continue;
-    const [x1,y1] = center(record);
-    const [x2,y2] = center(feature);
-    line.setAttribute('d', `M ${x1} ${y1} L ${x2} ${y2}`);
-  }
 }
 const lineResizeObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(alignConstellationLines) : null;
 lineResizeObserver?.observe(radarField);
@@ -105,20 +100,18 @@ document.fonts?.ready.then(alignConstellationLines);
 window.addEventListener('resize', alignConstellationLines, { passive: true });
 const chartRecords = [...radarField.querySelectorAll('.chart-record')];
 function highlightRecord(active) {
-  const projectClass = active?.classList.contains('project-record-0') ? 'project-record-0' : active?.classList.contains('project-record-1') ? 'project-record-1' : null;
-  const activityActive = Boolean(active?.classList.contains('activity-record-1') || active?.classList.contains('activity-record-2'));
+  const projectActive = Boolean(active?.classList.contains('project-record-0') || active?.classList.contains('project-record-1'));
+  const activityActive = Boolean(active?.classList.contains('activity-record-0') || active?.classList.contains('activity-record-1') || active?.classList.contains('activity-record-2'));
   radarField.classList.toggle('has-highlight', Boolean(active));
   for (const record of chartRecords) {
-    const related = record === active || activityActive && (record.classList.contains('activity-record-1') || record.classList.contains('activity-record-2'));
+    const related = record === active || projectActive && (record.classList.contains('project-record-0') || record.classList.contains('project-record-1')) || activityActive && (record.classList.contains('activity-record-0') || record.classList.contains('activity-record-1') || record.classList.contains('activity-record-2'));
     record.classList.toggle('is-related', related);
     record.classList.toggle('is-dimmed', Boolean(active) && !related);
   }
+  radarField.querySelector('.project-line')?.classList.toggle('is-related', projectActive);
   radarField.querySelector('.activity-line')?.classList.toggle('is-related', activityActive);
-  for (const line of radarField.querySelectorAll('.feature-line')) {
-    const related = Boolean(projectClass && line.dataset.connect.startsWith(`${projectClass}:`));
-    line.classList.toggle('is-related', related);
-    radarField.querySelector(`.${line.dataset.connect.split(':')[1]}`)?.classList.toggle('is-related', related);
-  }
+  for (const dot of radarField.querySelectorAll('.project-waypoint-0, .project-waypoint-1')) dot.classList.toggle('is-related', projectActive);
+  for (const dot of radarField.querySelectorAll('.activity-waypoint-0, .activity-waypoint-1')) dot.classList.toggle('is-related', activityActive);
 }
 function restoreFocusedRecord() {
   highlightRecord(chartRecords.includes(document.activeElement) ? document.activeElement : null);
