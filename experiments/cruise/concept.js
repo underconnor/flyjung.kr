@@ -227,6 +227,9 @@ const clamp = value => Math.max(0, Math.min(1, value));
 function applyScroll() {
   frame = 0;
   if (destroyed || document.hidden || !visible || !viewer) return;
+  const viewport = clamp((innerWidth - 320) / 448);
+  const baseAzimuth = .25 + viewport * .27;
+  const baseElevation = 1 - viewport * .38;
   const fieldBottom = constellationField.getBoundingClientRect().bottom;
   // Clear the 787 before the first meteor crosses its sticky screen position.
   const fade = clamp((fieldBottom - innerHeight * .62) / (innerHeight * .18));
@@ -234,17 +237,16 @@ function applyScroll() {
   if (reducedMotion.matches) {
     track.style.removeProperty('--plane-x');
     track.style.removeProperty('--plane-y');
-    viewer.setOrientation({ azimuth: .52, elevation: .62, roll: 0, immediate: true });
+    viewer.setOrientation({ azimuth: baseAzimuth, elevation: baseElevation, roll: 0, immediate: true });
     return;
   }
   const travel = Math.max(360, journey.offsetHeight - innerHeight * .95);
   const progress = clamp(-journey.getBoundingClientRect().top / travel);
-  const mobile = innerWidth <= 600;
-  track.style.setProperty('--plane-x', `${Math.round(progress * (mobile ? -27 : -42))}px`);
-  track.style.setProperty('--plane-y', `${Math.round(progress * (mobile ? 64 : 92))}px`);
+  track.style.setProperty('--plane-x', `${Math.round(progress * (-27 - viewport * 15))}px`);
+  track.style.setProperty('--plane-y', `${Math.round(progress * (64 + viewport * 28))}px`);
   viewer.setOrientation({
-    azimuth: .52 + progress * .06,
-    elevation: .62 - progress * .01,
+    azimuth: baseAzimuth + progress * .06,
+    elevation: baseElevation - progress * .01,
     roll: Math.sin(progress * Math.PI) * .018,
     immediate: true,
   });
@@ -270,7 +272,7 @@ try {
   const { createSkyViewer } = await import('/sky-engine/viewer.mjs');
   host.replaceChildren();
   viewer = createSkyViewer(host, { mode: 'ascii', interactive: false });
-  schedule();
+  applyScroll();
 } catch {
   host.textContent = '787';
 }

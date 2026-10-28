@@ -50,8 +50,7 @@ const skyDots = [
 ].join('');
 
 function recordStar({ className, title, period, role, href, dataAttribute }) {
-  const description = `${title}: ${role}, ${period}. 아래 상세 기록으로 이동`;
-  return `<a class="star-node ${className}" href="${e(href)}" ${dataAttribute} aria-label="${e(description)}"><span class="star-core" aria-hidden="true"></span><span class="star-label"><strong>${e(title)}</strong><small class="period-full" aria-hidden="true">${e(compactPeriod(period))}</small><small class="period-short" aria-hidden="true">${e(shortPeriod(period))}</small></span></a>`;
+  return `<a class="star-node ${className}" href="${e(href)}" ${dataAttribute}><span class="star-core" aria-hidden="true"></span><span class="star-label"><strong>${e(title)}</strong><small class="period-full">${e(compactPeriod(period))}</small><small class="period-short">${e(shortPeriod(period))}</small></span><span class="sr-only">${e(role)}. 아래 상세 기록으로 이동</span></a>`;
 }
 const shinsungin = pinnedProjects.find(project => project.id === 'shinsungin');
 const momu = pinnedProjects.find(project => project.id === 'momu');
@@ -86,7 +85,15 @@ const activityEntry = key => {
 const careerEntries = careers.length
   ? `<div class="career-index"><h3>경력</h3><ul>${careers.map((career,index) => `<li id="career-${index}"><strong>${e(career.organization)}</strong><span>${e(career.role || '')} · ${e(compactPeriod(career.period))}</span></li>`).join('')}</ul></div>`
   : '';
-const meteorLinks = [commitRecords[5], commitRecords[0]].map((commit,index) => `<a class="meteor meteor-${index}" href="${e(commit.url)}" target="_blank" rel="noopener noreferrer" aria-label="${e(`${commit.date} 커밋: ${commit.subject}`)}"><span class="meteor-streak" aria-hidden="true"></span><span class="meteor-copy"><strong>${e(commit.subject)}</strong><small>${e(commit.date)} · ${e(commit.shortSha)}</small></span></a>`).join('');
+const meteorStories = [
+  { shortSha: 'ff7cfa2', title: '블로그의 터치와 글 이동을 다듬다' },
+  { shortSha: '367696f', title: '코드 없이 글 쓰는 화면을 만들다' },
+];
+const meteorLinks = meteorStories.map(({ shortSha, title }, index) => {
+  const commit = commitRecords.find(record => record.shortSha === shortSha);
+  if (!commit) throw new Error(`Cruise meteor needs reviewed commit: ${shortSha}`);
+  return `<a class="meteor meteor-${index}" href="${e(commit.url)}" target="_blank" rel="noopener noreferrer"><span class="meteor-streak" aria-hidden="true"></span><span class="meteor-copy"><strong>${e(title)}</strong><small>${e(commit.date)} · ${e(commit.shortSha)}</small></span><span class="sr-only">원문 커밋: ${e(commit.subject)}. 새 탭에서 열기</span></a>`;
+}).join('');
 
 export function renderConcept() {
   return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#080d2c"><meta name="description" content="정지원의 작업과 활동을 두 별자리와 완만한 787의 비행으로 읽는 비교 시안."><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'"><title>정지원 · 순항</title><link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/cruise.css"><script type="module" src="/cruise.js"></script></head><body>
