@@ -37,6 +37,7 @@ npm run concept
 | `/atmosphere/` | 심야 인디고에서 대기와 밝은 본문으로 이어지는 그라데이션 |
 | `/constellation/` | 밤하늘의 스크롤 787 뒤에 별도 구간으로 모인 실제 기록의 점 지도 |
 | `/sky-trail/` | 첫 밤하늘의 소개 아래 왼쪽에서 시작하는 점 별자리, 오른쪽으로 내려가는 787, 스크롤 유성과 밝아지는 본문 |
+| `/cruise/` | 짧게 모인 두 기록 별자리, 완만하게 나는 787, 실제 작업 중심의 넓은 본문 |
 | `/descent/` | 787과 실제 저장소 커밋 별을 지나 스크롤로 내려오는 장면 |
 | `/orbit/` | 짧은 하늘 도입부와 밝은 본문을 조합한 차분한 절충안 |
 | `/flight-lab/` | 드래그·스크롤·포인터, 축·방식·감도·관성 비교 실험실 |
@@ -87,6 +88,7 @@ macOS에서는 `scripts/start-site.command`와 `scripts/start-public.command`를
 | `experiments/horizon/`, `experiments/daybreak/` | 이름 중심의 밝고 어두운 면을 조합한 새 절충안 |
 | `experiments/atmosphere/`, `experiments/descent/`, `experiments/orbit/` | 그라데이션·스크롤 하강·열린 문자 별 시안 |
 | `experiments/constellation/`, `experiments/sky-trail/`, `experiments/constellation-lab/` | 밤하늘의 관계 있는 별자리와 스크롤 구성 비교 |
+| `experiments/cruise/` | 짧은 별 무리·완만한 787 이동·실제 작업 중심의 밝은 본문 비교 |
 | `experiments/flight-lab/` | 비행기 입력 조합·모션·URL 설정 비교 |
 | `experiments/navigation.*`, `experiments/commit-records.mjs` | 전체 시안 메뉴와 검토한 실제 커밋 스냅샷 |
 | `experiments/aircraft-v2/`, `experiments/sky-engine/` | 새 787 지오메트리, 문자·입체 공유 렌더러와 입력 모션 |

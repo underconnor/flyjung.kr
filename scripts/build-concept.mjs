@@ -12,6 +12,7 @@ import { renderConcept as renderDaybreak } from '../experiments/daybreak/render.
 import { renderConcept as renderAtmosphere } from '../experiments/atmosphere/render.mjs';
 import { renderConcept as renderConstellation } from '../experiments/constellation/render.mjs';
 import { renderConcept as renderSkyTrail } from '../experiments/sky-trail/render.mjs';
+import { renderConcept as renderCruise } from '../experiments/cruise/render.mjs';
 import { renderConcept as renderDescent } from '../experiments/descent/render.mjs';
 import { renderConcept as renderOrbit } from '../experiments/orbit/render.mjs';
 import { renderConcept as renderFlightLab } from '../experiments/flight-lab/render.mjs';
@@ -29,6 +30,7 @@ const concepts = [
   { source: 'atmosphere', filename: 'atmosphere', pathname: 'atmosphere/index.html', render: renderAtmosphere },
   { source: 'constellation', filename: 'constellation', pathname: 'constellation/index.html', render: renderConstellation },
   { source: 'sky-trail', filename: 'sky-trail', pathname: 'sky-trail/index.html', render: renderSkyTrail },
+  { source: 'cruise', filename: 'cruise', pathname: 'cruise/index.html', render: renderCruise },
   { source: 'descent', filename: 'descent', pathname: 'descent/index.html', render: renderDescent },
   { source: 'orbit', filename: 'orbit', pathname: 'orbit/index.html', render: renderOrbit },
   { source: 'flight-lab', filename: 'flight-lab', pathname: 'flight-lab/index.html', render: renderFlightLab },

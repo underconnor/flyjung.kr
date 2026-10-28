@@ -8,6 +8,7 @@ export const conceptRoutes = [
   { id: 'atmosphere', label: 'Atmosphere', href: '/atmosphere/' },
   { id: 'constellation', label: '별과 787', href: '/constellation/' },
   { id: 'sky-trail', label: '별의 항로', href: '/sky-trail/' },
+  { id: 'cruise', label: '순항', href: '/cruise/' },
   { id: 'descent', label: 'Descent', href: '/descent/' },
   { id: 'orbit', label: 'Orbit', href: '/orbit/' },
   { id: 'flight-lab', label: '비행 실험실', href: '/flight-lab/' },
