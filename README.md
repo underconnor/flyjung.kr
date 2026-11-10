@@ -33,6 +33,8 @@ npm run package:public
 
 The public preview is at http://127.0.0.1:4319/. Deploy only the contents of `public-dist/`, or the verified ZIP at `.runtime/deploy/flyjung-public.zip`, to a static host. The output includes Cloudflare Pages headers and canonical URLs for `https://flyjung.kr`.
 
+Cloudflare Pages builds `main` with `npm run check:public` and publishes `public-dist/`. Commits intended for deployment must not include `[skip ci]`.
+
 Generated files and local drafts are excluded from Git. Keep credentials and private source materials outside the public asset tree.
 
 ## License
