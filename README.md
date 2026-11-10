@@ -31,9 +31,11 @@ npm run preview:public
 npm run package:public
 ```
 
-The public preview is at http://127.0.0.1:4319/. Deploy only the contents of `public-dist/`, or the verified ZIP at `.runtime/deploy/flyjung-public.zip`, to a static host. The output includes Cloudflare Pages headers and canonical URLs for `https://flyjung.kr`.
+The public preview is at http://127.0.0.1:4319/. Deploy only the contents of `public-dist/`, or the verified ZIP at `.runtime/deploy/flyjung-public.zip`, to a static host. Canonical URLs use `https://flyjung.kr`.
 
-Cloudflare Pages builds `main` with `npm run check:public` and publishes `public-dist/`. Commits intended for deployment must not include `[skip ci]`.
+GitHub Actions builds and checks pushes to `main`, then deploys only `public-dist/` to GitHub Pages. The workflow can also be run manually; deployment is restricted to `main`. In the repository's Pages settings, select GitHub Actions and set the custom domain to `flyjung.kr`. Commits intended for deployment must not include `[skip ci]`.
+
+The generated `_headers` file is specific to Cloudflare Pages and is ignored by GitHub Pages. The HTML Content-Security-Policy meta tags remain active.
 
 Generated files and local drafts are excluded from Git. Keep credentials and private source materials outside the public asset tree.
 
