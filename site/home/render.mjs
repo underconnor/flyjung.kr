@@ -109,7 +109,13 @@ export function renderHome({ publicBuild = false, posts = publishedPosts, now = 
   const facts = `${careerEntries}<div class="activity-index awards-index"><h3>Awards</h3><ul>${summaryAwards}</ul></div><div class="cv-aside"><div class="activity-index experience-index"><h3>Experience</h3><ul>${summaryActivities}</ul></div><div class="activity-index education-index"><h3>Education</h3><ul>${summaryEducation}</ul></div></div><a class="full-cv-link" href="/cv/">View full CV <span aria-hidden="true">↗</span></a>`;
   const cv = `<section class="cv-section cv-split content-width" id="cv" aria-labelledby="cv-title"><div class="cv-heading"><h2 id="cv-title">CV</h2></div><div class="cv-facts">${facts}</div></section>`;
   const metadata = renderMetadata();
-  return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="${publicBuild ? 'index,follow' : 'noindex,nofollow'}"><meta name="theme-color" content="#080d2c"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">${metadata}<link rel="icon" href="/assets/favicon.svg?v=jiwon-dot-20261109" type="image/svg+xml"><link rel="stylesheet" href="/cruise.css"><script src="/scripts/page-flow.js"></script><script type="module" src="/cruise.js" blocking="render"></script></head><body>
+  return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="${publicBuild ? 'index,follow' : 'noindex,nofollow'}"><meta name="theme-color" content="#080d2c"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">${metadata}<link rel="icon" href="/assets/favicon.svg?v=jiwon-dot-20261109" type="image/svg+xml"><link rel="stylesheet" href="/cruise.css">
+<link rel="modulepreload" href="/cruise.js">
+<link rel="modulepreload" href="/scripts/recent-posts.js">
+<link rel="modulepreload" href="/scripts/project-gallery.js">
+<link rel="modulepreload" href="/sky-engine/viewer.mjs" fetchpriority="low">
+<link rel="modulepreload" href="/aircraft-v2/model.mjs" fetchpriority="low">
+<script src="/scripts/page-flow.js"></script><script type="module" src="/cruise.js" blocking="render"></script></head><body>
 <a class="skip-link" href="#main">본문으로 건너뛰기</a>
 <div class="cruise-page" id="top" itemscope itemtype="https://schema.org/WebSite">${renderSiteNameProperties()}${renderSiteHeader({page:"home",widthClass:"content-width"})}
 <main id="main" tabindex="-1"><div class="night-journey"><svg class="sky-dots" viewBox="0 0 1200 1800" preserveAspectRatio="xMidYMin slice" aria-hidden="true" focusable="false">${skyDots}</svg>
