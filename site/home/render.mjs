@@ -13,7 +13,7 @@ const featuredProjects = ['lms-redesign', 'passport', 'bottleneck'].map(id => {
   if (!project) throw new Error(`Cruise needs featured project: ${id}`);
   return project;
 });
-const projectTitle = project => project.id === 'momu' ? '모무' : project.title;
+const projectTitle = project => project.title;
 const compactPeriod = period => period.replace(/\s*—\s*/g, '–');
 const shortPeriod = period => {
   const years = period.match(/20[0-9]{2}/g) || [];

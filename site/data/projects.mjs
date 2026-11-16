@@ -81,7 +81,7 @@ export const projects = [
   },
   {
     id: 'momu',
-    title: 'MOMU / 모무',
+    title: '무모',
     category: 'HACKATHON PROJECT',
     number: '04',
     summary: '일상에 작은 미션을 더하는 앱.',
@@ -90,8 +90,8 @@ export const projects = [
     role: 'UNITHON · 2026.08',
     overview: { work: 'UNITHON 해커톤 참여', stack: ['React Native', 'Firebase'] },
     images: [
-      { src: '/assets/projects/momu-mission.png', alt: '모무 앱의 오늘의 미션 화면', caption: '오늘의 미션', width: 390, height: 844 },
-      { src: '/assets/projects/momu-feed.png', alt: '모무 앱의 미션 기록 피드 화면', caption: '미션 기록과 피드', width: 390, height: 844 },
+      { src: '/assets/projects/momu-mission.png', alt: '무모 앱의 오늘의 미션 화면', caption: '오늘의 미션', width: 390, height: 844 },
+      { src: '/assets/projects/momu-feed.png', alt: '무모 앱의 미션 기록 피드 화면', caption: '미션 기록과 피드', width: 390, height: 844 },
     ],
     details: [
       { label: '참여', paragraphs: ['UNITHON · 2026.08'] },

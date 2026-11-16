@@ -61,7 +61,7 @@ export const cvProjects = [
     href: '/projects/#shinsungin',
   },
   {
-    organization: 'MOMU / 모무',
+    organization: '무모',
     role: 'UNITHON',
     period: '2026.08',
     href: '/projects/#momu',
