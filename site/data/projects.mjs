@@ -111,15 +111,11 @@ export const projects = [
     highlights: ['데이터 수집', '모델 설계·학습', '웹 개발'],
     overview: { work: '개인정보 탐지 모델 설계·학습, 데이터 수집과 비교 웹 개발', stack: ['Python', 'FastAPI', 'React', 'TypeScript', 'Vite'] },
     period: '2026.09',
-    images: [],
-    showcase: {
-      label: 'MODEL & WEB DEVELOPMENT',
-      items: [
-        { title: '데이터 수집', description: '개인정보 탐지 모델의 학습에 필요한 데이터를 수집했습니다.' },
-        { title: '모델 설계·학습', description: '개인정보 탐지를 위한 모델을 설계하고 학습했습니다.' },
-        { title: '비교 웹 개발', description: '같은 입력의 탐지·마스킹 결과를 모델별로 비교하는 웹을 개발했습니다.' },
-      ],
-    },
+    demoUrl: 'https://bottleneck.flyjung.kr/',
+    images: [
+      { src: '/assets/projects/bottleneck-landing.jpg', alt: 'Bottleneck 실제 사이트의 기업 데이터·AI 학습 활용 소개 화면', caption: '사업 소개', width: 1680, height: 860 },
+      { src: '/assets/projects/bottleneck-masking.jpg', alt: 'Bottleneck 실제 사이트에서 가상 제안요청서에 개인정보 마스킹을 적용한 예제 화면', caption: '요청서 마스킹 예제', width: 1680, height: 940 },
+    ],
     details: [
       { label: '담당한 일', paragraphs: ['개인정보 탐지 모델의 설계·학습, 데이터 수집과 비교 웹 개발을 맡았습니다.'] },
       { label: '기간', paragraphs: ['2026.09'] },
