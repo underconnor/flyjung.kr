@@ -93,10 +93,11 @@ test('the public bundle includes the selected Cruise design and excludes local c
   assert.doesNotMatch(home, /class="cv-story"/);
   const projectStars = home.match(/<div class="cluster cluster-project"[\s\S]*?<\/div>/)?.[0] || '';
   for (const id of ['lms-redesign', 'passport', 'shinsungin']) assert.ok(projectStars.includes('href="#detail-' + id + '"'), id);
-  assert.equal((home.match(/class="project-feature/g) || []).length, 4);
-  assert.equal((home.match(/class="feature-tags"/g) || []).length, 4);
+  assert.equal((home.match(/class="project-feature/g) || []).length, 3);
+  assert.equal((home.match(/class="feature-tags"/g) || []).length, 3);
+  assert.ok(home.includes('id="work-bottleneck"'));
+  assert.ok(!home.includes('id="work-passu"'), 'PASSU stays outside Selected Work');
   for (const id of ['bottleneck', 'passu']) {
-    assert.ok(home.includes(`id="work-${id}"`), `${id}: selected work`);
     assert.ok(home.includes(`id="detail-${id}"`), `${id}: searchable project`);
   }
   assert.match(home, /모델 설계·학습/);

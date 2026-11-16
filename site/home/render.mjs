@@ -8,7 +8,7 @@ import { renderSiteHeader, renderSiteFooter } from '../chrome.mjs';
 import { renderPrimaryProjectLink } from '../project-links.mjs';
 import { renderProjectGallery } from '../project-gallery.mjs';
 
-const featuredProjects = ['lms-redesign', 'passport', 'bottleneck', 'passu'].map(id => {
+const featuredProjects = ['lms-redesign', 'passport', 'bottleneck'].map(id => {
   const project = projects.find(project => project.id === id);
   if (!project) throw new Error(`Cruise needs featured project: ${id}`);
   return project;
