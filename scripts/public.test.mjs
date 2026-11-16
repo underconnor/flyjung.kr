@@ -93,7 +93,15 @@ test('the public bundle includes the selected Cruise design and excludes local c
   assert.doesNotMatch(home, /class="cv-story"/);
   const projectStars = home.match(/<div class="cluster cluster-project"[\s\S]*?<\/div>/)?.[0] || '';
   for (const id of ['lms-redesign', 'passport', 'shinsungin']) assert.ok(projectStars.includes('href="#detail-' + id + '"'), id);
-  assert.equal((home.match(/class="project-feature/g) || []).length, 2);
+  assert.equal((home.match(/class="project-feature/g) || []).length, 4);
+  assert.equal((home.match(/class="feature-tags"/g) || []).length, 4);
+  for (const id of ['bottleneck', 'passu']) {
+    assert.ok(home.includes(`id="work-${id}"`), `${id}: selected work`);
+    assert.ok(home.includes(`id="detail-${id}"`), `${id}: searchable project`);
+  }
+  assert.match(home, /모델 설계·학습/);
+  assert.match(home, /숭실대학교 IT지원위원회/);
+  assert.doesNotMatch(home, /id="(?:work|detail)-(?:insomac|yeobaek-notes)"/);
 
   assert.doesNotMatch(home, /concept-navigation|navigation\.js|127\.0\.0\.1|localhost/);
   for (const name of files.filter(file => /\.(?:html|m?js|css)$/.test(file))) {

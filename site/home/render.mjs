@@ -8,7 +8,7 @@ import { renderSiteHeader, renderSiteFooter } from '../chrome.mjs';
 import { renderPrimaryProjectLink } from '../project-links.mjs';
 import { renderProjectGallery } from '../project-gallery.mjs';
 
-const featuredProjects = ['lms-redesign', 'passport'].map(id => {
+const featuredProjects = ['lms-redesign', 'passport', 'bottleneck', 'passu'].map(id => {
   const project = projects.find(project => project.id === id);
   if (!project) throw new Error(`Cruise needs featured project: ${id}`);
   return project;
@@ -85,15 +85,20 @@ ${activityStar('it','node-it','IT지원위원회')}</div>`;
 const feature = (project, index) => {
   const functions = project.details.find(detail => detail.label === '주요 기능')?.paragraphs || [];
   const contribution = project.details.find(detail => detail.label === '담당한 일') || project.details[1];
+  const highlights = project.highlights?.length
+    ? `<ul class="feature-tags" aria-label="${e(project.title)} 주요 역량">${project.highlights.map(tag => `<li><span aria-hidden="true">#</span>${e(tag)}</li>`).join('')}</ul>`
+    : '';
   const visual = project.images.length
     ? `<div class="feature-visual">${renderProjectGallery(project, { id: `cruise-${project.id}` })}</div>`
-    : `<div class="feature-context"><p class="feature-context-label">담당한 일</p>${contribution.paragraphs.map(paragraph => `<p class="feature-context-copy">${e(paragraph)}</p>`).join('')}<p class="feature-specific">${functions.map(e).join('<br>')}</p></div>`;
-  return `<article id="work-${e(project.id)}" class="project-feature${index % 2 ? ' feature-alternate' : ''}${project.images.length ? '' : ' feature-text'}"><div class="feature-copy"><p class="feature-meta"><span>${e(project.role)}</span>${project.period ? `<span class="feature-period">${e(compactPeriod(project.period))}</span>` : ''}</p><h3>${e(projectTitle(project))}</h3><p class="feature-description">${e(project.summary)}</p><p class="feature-specific">${contribution.paragraphs.map(e).join('<br>')}</p><div class="feature-actions"><a href="/projects/#${e(project.id)}" data-home-return="work-${e(project.id)}">Project details <span aria-hidden="true">↗</span></a>${renderPrimaryProjectLink(project)}</div></div>${visual}</article>`;
+    : project.showcase
+      ? `<div class="feature-context feature-scope"><p class="feature-context-label">${e(project.showcase.label)}</p><ol class="feature-scope-list">${project.showcase.items.map((item, itemIndex) => `<li><span class="scope-number" aria-hidden="true">${String(itemIndex + 1).padStart(2, '0')}</span><div><h4>${e(item.title)}</h4><p>${e(item.description)}</p></div></li>`).join('')}</ol></div>`
+      : `<div class="feature-context"><p class="feature-context-label">담당한 일</p>${contribution.paragraphs.map(paragraph => `<p class="feature-context-copy">${e(paragraph)}</p>`).join('')}<p class="feature-specific">${functions.map(e).join('<br>')}</p></div>`;
+  return `<article id="work-${e(project.id)}" class="project-feature${index % 2 ? ' feature-alternate' : ''}${project.images.length ? '' : ' feature-text'}"><div class="feature-copy"><p class="feature-meta"><span>${e(project.role)}</span>${project.period ? `<span class="feature-period">${e(compactPeriod(project.period))}</span>` : ''}</p><h3>${e(projectTitle(project))}</h3><p class="feature-description">${e(project.summary)}</p>${highlights}<p class="feature-specific">${project.organization ? `${e(project.organization)}<br>` : ''}${contribution.paragraphs.map(e).join('<br>')}</p><div class="feature-actions"><a href="/projects/#${e(project.id)}" data-home-return="work-${e(project.id)}">Project details <span aria-hidden="true">↗</span></a>${renderPrimaryProjectLink(project)}</div></div>${visual}</article>`;
 };
 const archiveProject = project => {
   const overview = project.overview;
   if (!overview?.work || !Array.isArray(overview.stack) || !overview.stack.length) throw new Error(`Cruise needs a reviewed overview: ${project.id}`);
-  return `<details class="project-row" id="detail-${e(project.id)}" data-project data-search="${e(`${project.title} ${project.role} ${project.period || ''} ${project.summary} ${project.description} ${overview.work} ${overview.stack.join(' ')}`)}"><summary><span class="archive-name">${e(projectTitle(project))}</span><span class="archive-description">${e(project.description)}</span><span class="archive-role">${e(project.role)}${project.period ? ` · ${e(compactPeriod(project.period))}` : ''}</span><span class="archive-toggle" aria-hidden="true">+</span></summary><div class="project-detail"><div><h4>Work</h4><p>${e(overview.work)}</p></div><div><h4>Stack</h4><p>${overview.stack.map(e).join(' · ')}</p></div><a class="project-details-link" href="/projects/#${e(project.id)}" data-home-return="detail-${e(project.id)}">Project details <span aria-hidden="true">→</span></a></div></details>`;
+  return `<details class="project-row" id="detail-${e(project.id)}" data-project data-search="${e(`${project.title} ${project.role} ${project.period || ''} ${project.summary} ${project.description} ${overview.work} ${overview.stack.join(' ')} ${(project.highlights || []).join(' ')}`)}"><summary><span class="archive-name">${e(projectTitle(project))}</span><span class="archive-description">${e(project.description)}</span><span class="archive-role">${e(project.role)}${project.period ? ` · ${e(compactPeriod(project.period))}` : ''}</span><span class="archive-toggle" aria-hidden="true">+</span></summary><div class="project-detail"><div><h4>Work</h4><p>${e(overview.work)}</p></div><div><h4>${e(overview.stackLabel || 'Stack')}</h4><p>${overview.stack.map(e).join(' · ')}</p></div><a class="project-details-link" href="/projects/#${e(project.id)}" data-home-return="detail-${e(project.id)}">Project details <span aria-hidden="true">→</span></a></div></details>`;
 };
 const summaryActivities = activities.map((activity, index) => `<li id="activity-${index}" tabindex="-1"><span class="activity-period">${e(compactPeriod(activity.period))}</span><div><strong>${e(activity.organization)}</strong>${activity.role ? `<span>${e(activity.role)}</span>` : ''}</div></li>`).join('');
 const summaryEducation = education.map(item => `<li><span class="activity-period">${e(compactPeriod(item.period))}</span><div><strong>${e(item.organization)}</strong>${item.department ? `<span>${e(item.department)}</span>` : ''}</div></li>`).join('');
@@ -124,7 +129,7 @@ export function renderHome({ publicBuild = false, posts = publishedPosts, now = 
 <section class="constellation-field" aria-labelledby="constellation-title"><h2 id="constellation-title" class="sr-only">프로젝트와 활동의 두 별자리</h2>${projectCluster}${activityCluster}</section>
 <section class="meteor-stage" data-recent-count="${recentCount}" aria-labelledby="meteor-title"><h2 id="meteor-title" class="sr-only">Recent Blog posts</h2><div class="meteor-field" data-recent-count="${recentCount}">${meteorLinks}</div></section></div>
 <div class="ground">${cv}
-<section class="project-showcase content-width" id="projects" aria-labelledby="projects-title"><div class="showcase-heading"><h2 id="projects-title">Selected Work</h2></div>${featuredProjects.map((project, index) => feature(project, index)).join('')}</section>
+<section class="project-showcase content-width" id="projects" aria-labelledby="projects-title"><div class="showcase-heading"><h2 id="projects-title">Selected Work</h2><p>웹 개발, AI 모델링, 서비스 기획으로 풀어낸 프로젝트.</p></div>${featuredProjects.map((project, index) => feature(project, index)).join('')}</section>
 <section class="archive-section content-width" id="all-projects" aria-labelledby="archive-title"><div class="archive-heading"><h2 id="archive-title">All Projects</h2><form class="project-search" role="search" hidden><label for="project-search">Search</label><input id="project-search" type="search" name="q" placeholder="Name, role, keyword" maxlength="100" autocomplete="off"><button type="reset">Reset</button></form></div><p id="project-count" role="status">${projects.length} projects</p><div class="project-grid">${projects.map(project => archiveProject(project)).join('')}</div><p id="project-empty" hidden>No projects found. Try another keyword.</p></section>
 ${renderSiteFooter({page:"home",widthClass:"content-width"})}</div></main></div></body></html>`;
 }

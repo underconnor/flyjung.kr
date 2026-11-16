@@ -43,6 +43,18 @@ export const cvProjects = [
     href: '/projects/#passport',
   },
   {
+    organization: 'Bottleneck',
+    role: '모델 설계·학습 · 데이터 수집 · 웹 개발',
+    period: '2026.09',
+    href: '/projects/#bottleneck',
+  },
+  {
+    organization: 'PASSU · IT지원위원회',
+    role: '메인 PM · 기획·QA',
+    period: '2026.08 — 현재',
+    href: '/projects/#passu',
+  },
+  {
     organization: '신성인',
     role: 'Full Stack',
     period: '2023.06 — 2025.03',
